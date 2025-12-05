@@ -1,11 +1,11 @@
-/* === AURORA BALANCED CALENDAR - FINAL ARCHITECTURE === */
+/* === AURORA BALANCED CALENDAR - REVISÃO DE DESIGN (FINAL) === */
 
 /* 1. O CALENDÁRIO É AGORA UM BLOCO AUTÓNOMO E CENTRADO */
 .aurora-calendar {
-  max-width: 2000px; /* AUMENTADO de 800px para melhor presença em telas grandes */
-  margin: 2rem auto; /* Centra o bloco na página com margem vertical */
-  padding: 0 1rem; /* Adiciona um respiro lateral em telas muito pequenas */
-  box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+  max-width: 6000px;
+  margin: 2% auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
   width: 100%;
   color: var(--text-primary);
 }
@@ -13,14 +13,14 @@
 /* 2. CABEÇALHO COM TÍTULO CENTRADO */
 .calendar-header {
   display: grid;
-  grid-template-columns: 1fr auto 1fr; /* Coluna esquerda, conteúdo, coluna direita */
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   margin-bottom: 3rem;
-  position: relative; /* Para o caso de os botões precisarem de posicionamento absoluto se a grelha falhar */
+  position: relative;
 }
 
 .calendar-title {
-  grid-column: 2; /* Coloca o título na coluna central */
+  grid-column: 2;
   text-align: center;
   font-size: 1.75rem;
   font-weight: 600;
@@ -28,8 +28,8 @@
 }
 
 .nav-buttons {
-  grid-column: 3; /* Coloca os botões na coluna da direita */
-  justify-self: end; /* Alinha os botões à direita dentro da sua coluna */
+  grid-column: 3;
+  justify-self: end;
 }
 
 .nav-buttons button {
@@ -49,14 +49,16 @@
   box-shadow: 0 0 15px var(--glow-color);
 }
 
-/* 3. GRELHA EQUILIBRADA COM COLUNAS FLEXÍVEIS */
+/* 3. GRELHA DE CÉLULAS FIXAS E CENTRADAS (COMO NA IMAGEM) */
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr); /* Divide a max-width em 7 colunas iguais */
+  /* Colunas com tamanho máximo, mas que encolhem se necessário */
+  grid-template-columns: repeat(7, minmax(0, 100px));
+  /* Centra a grelha de dias no meio do container */
+  justify-content: center;
   text-align: center;
-  /* Espaçamento arejado mas contido */
-  row-gap: 2rem; 
-  column-gap: 1rem;
+  /* Espaçamento pequeno e consistente */
+  gap: 0.3rem;
 }
 
 .weekday-header {
@@ -72,31 +74,53 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 1 / 1;
 }
 
 .day-cell.not-current-month .day-number {
   opacity: 0.3;
+  background: transparent;
+  border-color: transparent;
 }
 
+/* === O "BALÃO" QUADRADO (AGORA DO TAMANHO DA CÉLULA) === */
 .day-number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1.1rem;
   transition: all 0.2s ease-in-out;
-  width: 40px;   /* Garante que o círculo tem um tamanho consistente */
-  height: 40px;  /* Garante que o círculo tem um tamanho consistente */
-  border-radius: 50%;
+  /* Ocupa a totalidade da célula */
+  width: 100%;
+  height: 100%;
+  /* Cantos arredondados, como na imagem */
+  border-radius: 16px;
+  /* Efeito Glassmorphism base */
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.day-cell:hover .day-number {
-  background-color: rgba(var(--accent-primary-rgb), 0.1);
+.day-cell:not(.not-current-month):hover .day-number {
+  background: rgba(var(--accent-primary-rgb), 0.3);
+  border-color: rgba(var(--accent-primary-rgb), 0.5);
+  transform: translateY(-2px);
 }
 
+/* === ESTILOS PARA DIAS ESPECIAIS (VERMELHO) === */
+
+.day-cell.weekend-background .day-number,
+.day-cell.holiday-background .day-number {
+  background-color: rgba(220, 38, 38, 0.4);
+  color: white;
+  border-color: rgba(220, 38, 38, 0.6);
+}
+
+/* O dia de hoje continua a ser o mais proeminente */
 .day-cell.today .day-number {
   background-color: var(--accent-primary);
   color: white;
   font-weight: 600;
-  box-shadow: 0 0 10px var(--glow-color);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 12px var(--glow-color);
 }

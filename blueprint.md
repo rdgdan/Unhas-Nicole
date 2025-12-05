@@ -7,45 +7,45 @@ O objetivo deste projeto é criar um sistema de agendamento de clientes (CRM) mo
 
 ---
 
-## Recursos Implementados (Até Agora)
+## Recursos Implementados
 
-### **Fase 1: Estrutura e Design Visual**
+### **Fase 1, 2 & 3: Estrutura, Design e Autenticação**
 
-*   **Autenticação:**
-    *   Tela de Login com e-mail/senha e login via Google.
-    *   Contexto de autenticação (`AuthContext`) para gerenciar o estado do usuário.
+*   **Autenticação Funcional com Firebase:**
+    *   Login com e-mail/senha e login via Google.
+    *   Contexto de autenticação (`AuthContext`) que gerencia o estado do usuário em tempo real.
+    *   Persistência de login ao recarregar a página.
 *   **Estrutura de Navegação:**
-    *   **Sidebar Recolhível:** Menu lateral para navegação principal entre as páginas.
-    *   **Roteamento:** Uso do `react-router-dom` para gerenciar as rotas da aplicação (`/`, `/agenda`, `/login`).
+    *   **Sidebar Recolhível:** Menu lateral funcional para navegação principal.
+    *   **Roteamento:** Uso do `react-router-dom` para gerenciar as rotas.
 *   **Páginas Principais:**
-    *   **Dashboard:** Tela inicial com cartões de KPI (Key Performance Indicators) e gráficos de evolução de receita e clientes.
-    *   **Agenda:** Calendário interativo para visualização, criação e edição de agendamentos.
+    *   **Dashboard:** Tela inicial com cartões de KPI e gráficos.
+    *   **Agenda:** Calendário interativo com modal de agendamento funcional.
 *   **Design System ("Aurora" / "Pêssego Chic"):**
-    *   **Tema Duplo:** Implementação de um tema escuro ("Aurora") e um tema claro ("Pêssego Chic") com troca dinâmica.
-    *   **Contexto de Tema (`ThemeContext`):** Gerencia o estado do tema (claro/escuro) em toda a aplicação.
-    *   **Estilos Globais (`index.css`):** Define as paletas de cores, fontes, e um fundo animado com "blobs" de gradiente.
-    *   **Componentes Estilizados:** Todos os componentes (`Sidebar`, `Dashboard`, `Login`, `Agenda`) foram estilizados para seguir a nova identidade visual, utilizando o efeito "glassmorphism", bordas com "glow" e animações sutis.
+    *   **Tema Duplo:** Implementação de um tema escuro e claro com troca dinâmica.
+    *   **Estilos Globais e Componentes:** Todos os componentes estilizados com um design coeso.
 
 ---
 
-## Plano de Ação - Fase 2 (Correções de UI/UX)
+## Plano de Ação - Fase 4: Melhorias de UX no Calendário
 
-### **Problema Identificado:**
+### **Objetivo:**
 
-Após a implementação do novo design, surgiram falhas críticas de layout e funcionalidade que quebraram a experiência do usuário.
+Aumentar a clareza e a interatividade do calendário, facilitando a identificação de dias específicos e a visualização rápida dos detalhes dos agendamentos.
 
-*   O modal da Agenda está sendo renderizado incorretamente atrás da grade do calendário.
-*   A funcionalidade de recolher/expandir da Sidebar parou de funcionar.
-*   O botão "Sair" na Sidebar está visualmente cortado e não executa a ação de logout.
+### **Passos para a Implementação:**
 
-### **Passos para a Correção:**
+1.  **Destaque de Dias Especiais:**
+    *   Implementar uma lógica no componente `CustomCalendar.jsx` para identificar Sábados, Domingos e feriados.
+    *   Utilizar a propriedade `dayPropGetter` da biblioteca `react-big-calendar` para aplicar classes CSS distintas a esses dias.
+    *   Adicionar estilos no `CustomCalendar.css` para colorir o fundo desses dias, tornando-os visualmente diferentes dos dias de semana.
 
-1.  **Correção da Sidebar:**
-    *   **Layout do Botão "Sair":** Ajustar o CSS (`Sidebar.css`) para garantir que o rodapé da sidebar e seu conteúdo sejam sempre visíveis, corrigindo o problema do botão cortado. Provavelmente, um ajuste no `flexbox` é necessário.
-    *   **Funcionalidade do Botão de Recolher/Expandir:** Investigar o `SidebarContext.jsx` e o `Sidebar.jsx` para encontrar por que o estado `isCollapsed` não está sendo atualizado ou por que a classe CSS `collapsed` não está sendo aplicada corretamente. Corrigir o manipulador de clique (`onClick`).
-    *   **Funcionalidade do Botão "Sair":** Verificar o manipulador de clique (`handleLogout`) no `Sidebar.jsx` para garantir que a função `logout` do `AuthContext` seja chamada e que a navegação para `/login` ocorra como esperado.
+2.  **Criação de Tooltips ("Balões") para Eventos:**
+    *   Criar um componente customizado para renderizar os eventos no calendário.
+    *   Este componente incluirá um "balão" (tooltip) que será exibido ao passar o rato (`onHover`) sobre o evento.
+    *   O tooltip mostrará informações detalhadas do agendamento (ex: nome do cliente, serviço, horário completo).
+    *   Atualizar o componente `<Calendar>` para usar este novo componente de evento customizado através da propriedade `components`.
 
-2.  **Correção do Modal da Agenda:**
-    *   **Ajuste de Z-index:** Modificar o `Agenda.css` para atribuir um `z-index` mais alto ao backdrop do modal e ao seu conteúdo, garantindo que eles apareçam *sobre* o componente do calendário.
-    *   **Refinamento do Estilo:** Revisar os estilos do modal para garantir que ele esteja bem posicionado, legível e consistente com o restante do design "Aurora".
-
+3.  **Lista de Feriados:**
+    *   Criar uma lista estática com os principais feriados nacionais do Brasil para o ano corrente.
+    *   A lógica do `dayPropGetter` irá consultar esta lista para aplicar o estilo de feriado.
