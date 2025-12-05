@@ -4,14 +4,15 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSidebar } from '../context/SidebarContext';
-import { useTheme } from '../context/ThemeContext'; // Import useTheme
-import { FiHome, FiCalendar, FiLogOut, FiMenu, FiSun, FiMoon, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { useTheme } from '../context/ThemeContext';
+// ADICIONAR O ÍCONE FiUsers
+import { FiHome, FiCalendar, FiUsers, FiLogOut, FiMenu, FiSun, FiMoon, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { isCollapsed, toggleSidebar } = useSidebar();
-  const { theme, toggleTheme } = useTheme(); // Use o hook de tema
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -35,6 +36,11 @@ const Sidebar = () => {
         <NavLink to="/agenda" className="nav-item">
           <FiCalendar />
           <span>Agenda</span>
+        </NavLink>
+        {/* ADICIONAR O NOVO LINK PARA CLIENTES */}
+        <NavLink to="/clientes" className="nav-item">
+          <FiUsers />
+          <span>Clientes</span>
         </NavLink>
       </nav>
 

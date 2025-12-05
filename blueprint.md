@@ -3,49 +3,59 @@
 
 ## Visão Geral
 
-O objetivo deste projeto é criar um sistema de agendamento de clientes (CRM) moderno, intuitivo e visualmente atraente para um salão de beleza. A aplicação será um Single-Page Application (SPA) construído com React, utilizando Vite para o ambiente de desenvolvimento. O design, codinome "Aurora" (escuro) e "Pêssego Chic" (claro), prioriza uma experiência de usuário limpa, com elementos de "glassmorphism", tipografia moderna e interatividade fluida.
+O objetivo deste projeto é criar um sistema de agendamento de clientes (CRM) moderno, intuitivo e visualmente atraente para um salão de beleza. A aplicação será um Single-Page Application (SPA) construído com React, utilizando Vite para o ambiente de desenvolvimento. O design, codinome "Aurora", prioriza uma experiência de usuário limpa, com elementos de "glassmorphism", tipografia moderna e interatividade fluida.
 
 ---
 
 ## Recursos Implementados
 
-### **Fase 1, 2 & 3: Estrutura, Design e Autenticação**
+### **Fase 1-3: Estrutura, Design e Autenticação**
 
-*   **Autenticação Funcional com Firebase:**
-    *   Login com e-mail/senha e login via Google.
-    *   Contexto de autenticação (`AuthContext`) que gerencia o estado do usuário em tempo real.
-    *   Persistência de login ao recarregar a página.
-*   **Estrutura de Navegação:**
-    *   **Sidebar Recolhível:** Menu lateral funcional para navegação principal.
-    *   **Roteamento:** Uso do `react-router-dom` para gerenciar as rotas.
-*   **Páginas Principais:**
-    *   **Dashboard:** Tela inicial com cartões de KPI e gráficos.
-    *   **Agenda:** Calendário interativo com modal de agendamento funcional.
-*   **Design System ("Aurora" / "Pêssego Chic"):**
-    *   **Tema Duplo:** Implementação de um tema escuro e claro com troca dinâmica.
-    *   **Estilos Globais e Componentes:** Todos os componentes estilizados com um design coeso.
+*   **Autenticação Funcional com Firebase:** Login com e-mail/senha e Google, com persistência de sessão.
+*   **Estrutura de Navegação:** Sidebar recolhível e roteamento com `react-router-dom`.
+*   **Páginas Principais:** Dashboard com KPIs e uma página de Agenda funcional.
+*   **Design System "Aurora":** Tema escuro coeso e moderno implementado em todos os componentes.
+
+### **Fase 4: Calendário Avançado**
+
+*   **Design e UX Aprimorados:** O calendário foi redesenhado para ter um visual mais moderno, com dias em formato de quadrados arredondados e um layout mais limpo.
+*   **Destaques Visuais:** Fins de semana e feriados são agora destacados a vermelho para fácil identificação.
+*   **Integração de Feriados Nacionais:** O calendário consome uma API para buscar e exibir feriados nacionais do Brasil, adicionando inteligência à visualização.
 
 ---
 
-## Plano de Ação - Fase 4: Melhorias de UX no Calendário
+## Plano de Ação - Fase 5: Módulo de Gestão de Clientes
 
 ### **Objetivo:**
 
-Aumentar a clareza e a interatividade do calendário, facilitando a identificação de dias específicos e a visualização rápida dos detalhes dos agendamentos.
+Desenvolver uma página completa para a gestão de clientes, permitindo a visualização, cadastro, edição e exclusão de informações. Esta página será o centro operacional para o gerenciamento da base de clientes e servirá como a fonte de dados para futuros agendamentos no calendário.
 
 ### **Passos para a Implementação:**
 
-1.  **Destaque de Dias Especiais:**
-    *   Implementar uma lógica no componente `CustomCalendar.jsx` para identificar Sábados, Domingos e feriados.
-    *   Utilizar a propriedade `dayPropGetter` da biblioteca `react-big-calendar` para aplicar classes CSS distintas a esses dias.
-    *   Adicionar estilos no `CustomCalendar.css` para colorir o fundo desses dias, tornando-os visualmente diferentes dos dias de semana.
+1.  **Estrutura da Página e Roteamento:**
+    *   Adicionar uma nova rota, `/clientes`, no `App.jsx`.
+    *   Criar o componente da página principal `src/pages/ClientListPage.jsx`.
+    *   Adicionar um novo link de navegação para "Clientes" na `Sidebar`.
 
-2.  **Criação de Tooltips ("Balões") para Eventos:**
-    *   Criar um componente customizado para renderizar os eventos no calendário.
-    *   Este componente incluirá um "balão" (tooltip) que será exibido ao passar o rato (`onHover`) sobre o evento.
-    *   O tooltip mostrará informações detalhadas do agendamento (ex: nome do cliente, serviço, horário completo).
-    *   Atualizar o componente `<Calendar>` para usar este novo componente de evento customizado através da propriedade `components`.
+2.  **Componente da Lista de Clientes (`ClientList.jsx`):**
+    *   Desenvolver uma tabela ou uma lista de cartões para exibir os clientes.
+    *   Cada cliente na lista terá botões para "Editar" e "Excluir".
+    *   A lista exibirá colunas para Nome, Data do Serviço, Modelo de Unha e Valor.
 
-3.  **Lista de Feriados:**
-    *   Criar uma lista estática com os principais feriados nacionais do Brasil para o ano corrente.
-    *   A lógica do `dayPropGetter` irá consultar esta lista para aplicar o estilo de feriado.
+3.  **Funcionalidades de Filtro e Ordenação (`ClientFilters.jsx`):**
+    *   Implementar um componente com os controlos de filtro:
+        *   Um seletor de data (ou um campo de texto).
+        *   Um campo para filtrar por modelo de unha.
+        *   Um seletor ou slider para filtrar por valor.
+    *   Adicionar botões ou um seletor para ordenar a lista em ordem alfabética (A-Z) e por valor (maior para menor e vice-versa).
+
+4.  **Cadastro e Edição de Clientes (`ClientForm.jsx`):**
+    *   Criar um formulário, provavelmente num modal, que será usado tanto para **cadastrar um novo cliente** como para **editar um cliente existente**.
+    *   O botão principal da página, "Cadastrar Novo Cliente", abrirá este formulário.
+
+5.  **Gestão de Dados:**
+    *   Começar com uma lista de dados estáticos (`mock data`) para acelerar o desenvolvimento da interface e da lógica de filtros/ordenação.
+    *   Num passo seguinte, substituir os dados estáticos pela integração com o **Firebase Firestore** para persistir os dados dos clientes.
+
+6.  **Integração Futura com o Calendário:**
+    *   A data associada a cada cliente será, futuramente, usada para criar eventos e agendamentos diretamente no calendário da página "Agenda".

@@ -1,0 +1,62 @@
+
+/* src/components/ClientFilters/ClientFilters.css */
+
+.filters-container {
+  display: flex;
+  flex-wrap: wrap; /* Para responsividade */
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: var(--background-light);
+  border-radius: 12px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filter-group label {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.filter-input,
+.filter-select {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(96, 91, 255, 0.2);
+}
+
+/* Estilo específico para a busca */
+.search-filter {
+  position: relative;
+  flex-grow: 1; /* Ocupa mais espaço */
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.search-filter .filter-input {
+  padding-left: 3rem; /* Espaço para o ícone */
+  width: 100%;
+}

@@ -1,0 +1,40 @@
+
+/* src/pages/ClientListPage.css */
+
+.client-list-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.client-list-page .page-title {
+  font-size: 2rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.add-client-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 8px rgba(96, 91, 255, 0.2);
+}
+
+.add-client-btn:hover {
+  background-color: var(--primary-color-dark);
+  transform: translateY(-2px);
+}
+
+.add-client-btn svg {
+  font-size: 1.2rem;
+}

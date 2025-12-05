@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Agenda from './pages/Agenda';
+import ClientListPage from './pages/ClientListPage'; // <-- 1. IMPORTAR A NOVA PÁGINA
 import MainLayout from './layouts/MainLayout';
 
 // Este componente protege as rotas que exigem autenticação
@@ -29,6 +30,7 @@ const AppRoutes = () => {
               <Routes> { /* Um conjunto de rotas aninhadas */}
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/agenda" element={<Agenda />} />
+                <Route path="/clientes" element={<ClientListPage />} /> {/* <-- 2. ADICIONAR A NOVA ROTA */}
                  {/* Se nenhuma outra rota corresponder, redireciona para o dashboard */}
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
