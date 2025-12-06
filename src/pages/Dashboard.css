@@ -1,140 +1,85 @@
-
-/* --- AURORA & PEACH CHIC DASHBOARD STYLE --- */
+/* === DASHBOARD THEME-AWARE STYLES === */
 
 .dashboard-container {
-  padding: 1rem 2rem 2rem 2rem;
+  padding: 2rem;
 }
 
-.main-header {
-  margin-bottom: 2.5rem;
-}
-
-.main-header h2 {
-  font-size: 2.2rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.main-header p {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-}
-
-/* --- Estilo para os Títulos das Seções de KPIs --- */
-.kpi-section-header {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
-}
-
-.kpi-section-header h3 {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-/* --- Grid de KPIs --- */
-.kpi-grid {
-  display: grid;
-  gap: 1.5rem;
-}
-
-/* Layout para a seção de Clientes (3 colunas) */
-.kpi-grid.clients {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-/* Layout para a seção de Receita (1 coluna, mais larga) */
-.kpi-grid.revenue {
-  grid-template-columns: 1fr;
-}
-
-.kpi-card {
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.kpi-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-  border-color: var(--border-hover);
-}
-
-.kpi-icon-wrapper {
-  font-size: 2rem;
-  padding: 1rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--background-secondary);
-  color: var(--accent-primary);
-}
-
-.kpi-content h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.kpi-content p {
-  margin: 0;
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.kpi-change {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
-}
-
-.kpi-change.positive { color: var(--success-color); }
-.kpi-change.negative { color: var(--danger-color); }
-
-
-/* --- Container dos Gráficos --- */
-.charts-container {
-  margin-top: 2.5rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-}
-
-.chart-card {
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 1.5rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-/* Novo estilo para o card de largura total */
-.chart-card.full-width {
-    grid-column: 1 / -1; /* Ocupa todas as colunas da grid */
-}
-
-
-.chart-card h3 {
-  margin-top: 0;
+.dashboard-title {
+  font-size: 2.5rem;
+  font-weight: 700;
   margin-bottom: 2rem;
-  font-size: 1.2rem;
-  font-weight: 600;
   color: var(--text-primary);
+}
+
+.metrics-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* O estilo base dos cartões é herdado do index.css */
+.card {
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card h2 {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.card p {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* 1. USAR AS NOVAS VARIÁVEIS DE TEMA */
+.card.future-metric {
+  background: var(--future-card-bg);
+  border-color: var(--future-card-border);
+}
+
+.card.future-metric h2 {
+  color: var(--future-card-header);
+}
+
+.charts-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.chart-wrapper {
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chart-wrapper h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* 2. GARANTIR QUE O TOOLTIP DOS GRÁFICOS USA VARIÁVEIS */
+.recharts-tooltip-wrapper {
+  background-color: var(--background-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+}
+
+.recharts-legend-item {
+  color: var(--text-secondary) !important;
 }

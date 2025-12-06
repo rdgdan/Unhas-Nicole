@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Calendar, LogOut, ChevronLeft, Sun, Moon } from 'lucide-react';
+// 1. IMPORTAR O ÍCONE DE UTILIZADORES
+import { Home, Calendar, Users, LogOut, ChevronLeft, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import './MainLayout.css';
@@ -12,7 +14,8 @@ const MainLayout = ({ children }) => {
   const { theme, toggleTheme } = useTheme();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname.startsWith(path) && path !== '/' ? true : location.pathname === path;
+
 
   const handleLogout = async () => {
     try {
@@ -24,10 +27,8 @@ const MainLayout = ({ children }) => {
   };
 
   return (
-    // ESTRUTURA CORRETA APLICADA AQUI - CORRESPONDE AO App.css
     <div className="app-layout">
       <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-        {/* O conteúdo da sidebar permanece o mesmo */}
         <div className="sidebar-header">
           <div className="logo-container">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -51,6 +52,11 @@ const MainLayout = ({ children }) => {
             <Calendar size={22} />
             <span className="nav-text">Agenda</span>
           </NavLink>
+          {/* 2. ADICIONAR O NOVO LINK PARA CLIENTES */}
+          <NavLink to="/clientes" className={`nav-item ${isActive('/clientes') ? 'active' : ''}`}>
+            <Users size={22} />
+            <span className="nav-text">Clientes</span>
+          </NavLink>
         </nav>
 
         <div className="sidebar-footer">
@@ -68,10 +74,9 @@ const MainLayout = ({ children }) => {
         </div>
       </aside>
 
-      {/* O MAIN CONTENT E O PAGE CONTAINER QUE FALTAVAM */}
       <main className={`main-content ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="page-container">
-          {children} {/* A sua página (Agenda) será renderizada aqui dentro */}
+          {children}
         </div>
       </main>
     </div>

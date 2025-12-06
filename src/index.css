@@ -1,7 +1,7 @@
 
-/* --- AURORA & PEACH CHIC THEME --- */
+/* --- AURORA & NICOLE'S PINK THEME --- */
 
-/* --- Dark Theme (Default) --- */
+/* --- Dark Theme (Default Aurora) --- */
 :root {
   --background-primary: #10111A;
   --background-secondary: #1C1D2B;
@@ -10,30 +10,40 @@
   --text-secondary: #A0A0B0;
   --border-color: rgba(94, 85, 124, 0.3);
   --border-hover: rgba(125, 110, 169, 0.6);
-  --accent-primary: #BE93FD;
-  --accent-secondary: #E6A4B4;
+  --accent-primary: #BE93FD; 
+  --accent-secondary: #E6A4B4; 
   --glow-color: rgba(190, 147, 253, 0.15);
-  --positive-color: #00D2A0;
-  --negative-color: #FF6B6B;
+
+  --future-card-bg: rgba(50, 40, 80, 0.5);
+  --future-card-border: rgba(136, 132, 216, 0.5);
+  --future-card-header: #d8d6ff;
+
+  /* 1. NOVA VARIÁVEL PARA TEXTO SOBRE FUNDO DE DESTAQUE */
+  --accent-text: #FFFFFF;
 }
 
-/* --- PEACH CHIC Light Theme --- */
+/* --- Light Theme (Nicole's Pink) --- */
 body[data-theme='light'] {
-  --background-primary: #FFF7F5; /* Tom de pêssego/rosé muito sutil */
+  --background-primary: #FDFDFD;
   --background-secondary: #FFFFFF;
-  --card-background: rgba(255, 255, 255, 0.75); /* Branco com transparência para o vidro */
-  --text-primary: #4A3F3F; /* Marrom escuro rico */
-  --text-secondary: #8A7F7F; /* Tom mais claro para texto secundário */
-  --border-color: #F0E5E3;
-  --border-hover: #E8D8D5;
-  --accent-primary: #A365F8; /* Roxo um pouco mais saturado para contraste */
-  --accent-secondary: #E6A4B4;
-  --glow-color: rgba(190, 147, 253, 0.15);
-  --positive-color: #009975;
-  --negative-color: #C0392B;
+  --card-background: rgba(255, 255, 255, 0.8);
+  --text-primary: #2C2C2C;
+  --text-secondary: #8A8A8A;
+  --border-color: #FDE9F0;
+  --border-hover: #FBC4D6;
+  --accent-primary: #E75480;
+  --accent-secondary: #FBC4D6;
+  --glow-color: rgba(231, 84, 128, 0.2);
+
+  --future-card-bg: rgba(253, 233, 240, 0.8);
+  --future-card-border: rgba(231, 84, 128, 0.5);
+  --future-card-header: #E75480;
+
+  /* 2. NOVA VARIÁVEL PARA TEXTO SOBRE FUNDO DE DESTAQUE (TEMA CLARO) */
+  --accent-text: #FFFFFF;
 }
 
-/* --- Dynamic Background Blobs --- */
+/* O resto do CSS permanece igual... */
 body::before, body::after {
   content: "";
   position: fixed;
@@ -42,47 +52,14 @@ body::before, body::after {
   transition: opacity 0.5s ease, background 0.5s ease;
   filter: blur(150px); 
 }
-
-/* Dark Theme Blobs */
-body::before {
-  width: 400px; height: 400px;
-  background: var(--accent-primary);
-  opacity: 0.2;
-  top: -10%; left: -20%;
-}
-
-body::after {
-  width: 500px; height: 500px;
-  background: var(--accent-secondary);
-  opacity: 0.15;
-  bottom: -15%; right: -15%;
-}
-
-/* Light Theme Blobs */
-body[data-theme='light']::before {
-  background: #FADADD; /* Rosa pêssego suave */
-  opacity: 0.5;
-}
-
-body[data-theme='light']::after {
-  background: #DFCCFB; /* Lavanda suave */
-  opacity: 0.4;
-  bottom: -20%; right: -20%;
-}
-
-/* --- Global Styles --- */
-
-/* --- A CORREÇÃO DEFINITIVA --- */
-/* Cria um novo contexto de empilhamento para toda a aplicação. */
-/* Isso isola a aplicação dos pseudo-elementos do body com z-index negativo, */
-/* prevenindo que eles interfiram com a propagação de eventos de bibliotecas como o FullCalendar. */
-#root {
-  isolation: isolate;
-}
-
+body::before { width: 400px; height: 400px; background: var(--accent-primary); opacity: 0.2; top: -10%; left: -20%; }
+body::after { width: 500px; height: 500px; background: var(--accent-secondary); opacity: 0.15; bottom: -15%; right: -15%; }
+body[data-theme='light']::before { background: var(--accent-secondary); opacity: 0.4; top: -15%; left: -15%; }
+body[data-theme='light']::after { background: #fdeeee; opacity: 0.4; bottom: -20%; right: -20%; }
+#root { isolation: isolate; }
 body {
   margin: 0;
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background-primary);
@@ -90,8 +67,9 @@ body {
   transition: background-color 0.3s ease-in-out;
   overflow-x: hidden;
 }
-
-h1, h2, h3, h4, h5, h6 {
-  color: var(--text-primary);
-  font-weight: 600;
+h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 600; }
+.card, .chart-wrapper {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
 }

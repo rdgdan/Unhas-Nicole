@@ -5,8 +5,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSidebar } from '../context/SidebarContext';
 import { useTheme } from '../context/ThemeContext';
-// ADICIONAR O ÍCONE FiUsers
-import { FiHome, FiCalendar, FiUsers, FiLogOut, FiMenu, FiSun, FiMoon, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+// 1. IMPORTAR O ÍCONE NOVO E CONSISTENTE
+import { FiCalendar, FiUsers, FiLogOut, FiSun, FiMoon, FiChevronLeft, FiChevronRight, FiPenTool } from 'react-icons/fi';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -29,15 +29,15 @@ const Sidebar = () => {
       </div>
 
       <nav className="sidebar-nav">
-        <NavLink to="/" className="nav-item">
-          <FiHome />
+        {/* 2. APLICAR O ÍCONE FiPenTool AO DASHBOARD */}
+        <NavLink to="/" className="nav-item" end>
+          <FiPenTool />
           <span>Dashboard</span>
         </NavLink>
         <NavLink to="/agenda" className="nav-item">
           <FiCalendar />
           <span>Agenda</span>
         </NavLink>
-        {/* ADICIONAR O NOVO LINK PARA CLIENTES */}
         <NavLink to="/clientes" className="nav-item">
           <FiUsers />
           <span>Clientes</span>

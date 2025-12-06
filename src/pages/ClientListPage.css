@@ -1,4 +1,3 @@
-
 /* src/pages/ClientListPage.css */
 
 .client-list-page .page-header {
@@ -14,24 +13,25 @@
   font-weight: 700;
 }
 
+/* === ESTILO DO BOTÃO FINAL E CORRIGIDO === */
 .add-client-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--accent-primary); /* Fundo com a cor de destaque do tema */
+  color: var(--accent-text); /* COR DO TEXTO AGORA É UMA VARIÁVEL DE TEMA */
   border: none;
   border-radius: 8px;
   padding: 0.8rem 1.2rem;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  box-shadow: 0 4px 8px rgba(96, 91, 255, 0.2);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px var(--glow-color);
 }
 
 .add-client-btn:hover {
-  background-color: var(--primary-color-dark);
+  opacity: 0.9;
   transform: translateY(-2px);
 }
 
