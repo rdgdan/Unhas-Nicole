@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-// 1. IMPORTAR O ÍCONE DE UTILIZADORES
-import { Home, Calendar, Users, LogOut, ChevronLeft, Sun, Moon } from 'lucide-react';
+// 1. IMPORTAR O ÍCONE SPARKLES (BRILHOS)
+import { Home, Calendar, Users, LogOut, ChevronLeft, Sun, Moon, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import './MainLayout.css';
@@ -15,7 +15,6 @@ const MainLayout = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isActive = (path) => location.pathname.startsWith(path) && path !== '/' ? true : location.pathname === path;
-
 
   const handleLogout = async () => {
     try {
@@ -31,11 +30,8 @@ const MainLayout = ({ children }) => {
       <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <div className="logo-container">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="#BF93FD" strokeWidth="2" strokeLinejoin="round"/>
-              <path d="M2 7L12 12L22 7" stroke="#BF93FD" strokeWidth="2" strokeLinejoin="round"/>
-              <path d="M12 12V22" stroke="#BF93FD" strokeWidth="2" strokeLinejoin="round"/>
-            </svg>
+            {/* 2. SUBSTITUIR O SVG DO CUBO PELO ÍCONE SPARKLES */}
+            <Sparkles size={32} className="logo-icon" />
             <span className="logo-text">By Borges</span>
           </div>
           <button className="toggle-btn" onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -52,7 +48,6 @@ const MainLayout = ({ children }) => {
             <Calendar size={22} />
             <span className="nav-text">Agenda</span>
           </NavLink>
-          {/* 2. ADICIONAR O NOVO LINK PARA CLIENTES */}
           <NavLink to="/clientes" className={`nav-item ${isActive('/clientes') ? 'active' : ''}`}>
             <Users size={22} />
             <span className="nav-text">Clientes</span>
