@@ -9,6 +9,9 @@
   --secondary-text-color: #495057;/* Cinza Escuro - Dark Gray for secondary text */
   --border-color: #E9ECEF;        /* Cinza Muito Claro - Light Gray for borders */
   --global-bg: #F8F9FA;           /* Fundo global um pouco acinzentado */
+
+  /* Variável do calendário com um rosa mais forte */
+  --calendar-day-bg: #F5D5E0;     /* Fundo rosa intermediário para os dias */
 }
 
 /* Dark Theme */
@@ -21,6 +24,9 @@ body[data-theme='dark'] {
   --secondary-text-color: #ADB5BD;/* Texto secundário acinzentado */
   --border-color: #343A40;        /* Bordas escuras */
   --global-bg: #121212;           /* Fundo global bem escuro */
+
+  /* Variável do calendário para o tema escuro (inalterada) */
+  --calendar-day-bg: #242424;     /* Fundo de card padrão */
 }
 
 

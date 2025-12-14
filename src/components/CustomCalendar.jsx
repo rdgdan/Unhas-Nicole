@@ -1,28 +1,25 @@
-import React, { useState, useMemo } from 'react';
+
+import React, { useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './CustomCalendar.css';
 
 const CustomCalendar = ({ onDateClick, holidays = [] }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = React.useState(new Date());
 
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   const days = useMemo(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-
     const firstDayOfMonth = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
     const daysArray = [];
 
-    // Dias do mês anterior
     const prevMonthDays = new Date(year, month, 0).getDate();
     for (let i = firstDayOfMonth; i > 0; i--) {
       daysArray.push({ day: prevMonthDays - i + 1, month: 'prev', date: new Date(year, month - 1, prevMonthDays - i + 1) });
     }
 
-    // Dias do mês atual
     for (let i = 1; i <= daysInMonth; i++) {
       daysArray.push({ day: i, month: 'current', date: new Date(year, month, i) });
     }
@@ -43,25 +40,36 @@ const CustomCalendar = ({ onDateClick, holidays = [] }) => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
-  const isToday = (date) => {
-    const today = new Date();
-    return date.getDate() === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear();
-  };
-
-  const isHoliday = (date) => {
-      return holidays.some(h => {
-          const holidayDate = new Date(h.start + 'T00:00:00'); // Garante que a data é local
-          return holidayDate.getDate() === date.getDate() &&
-                 holidayDate.getMonth() === date.getMonth() &&
-                 holidayDate.getFullYear() === date.getFullYear();
-      });
-  };
-
   const formatDateForId = (date) => {
-      return date.toISOString().split('T')[0];
-  }
+    return date.toISOString().split('T')[0];
+  };
+
+  // ### LÓGICA DE CLASSES CORRIGIDA ###
+  const getDayClassName = (dayInfo) => {
+    const classes = ['day-cell'];
+    const today = new Date();
+    const dateStr = formatDateForId(dayInfo.date);
+    const dayOfWeek = dayInfo.date.getDay();
+
+    if (dayInfo.month !== 'current') {
+      classes.push('not-current-month');
+    }
+
+    // Usa dois `if` separados para que um dia possa ser feriado E fim de semana
+    if (holidays.includes(dateStr)) {
+      classes.push('holiday-day');
+    }
+    
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      classes.push('weekend-day');
+    }
+    
+    if (formatDateForId(dayInfo.date) === formatDateForId(today)) {
+        classes.push('today');
+    }
+
+    return classes.join(' ');
+  };
 
   return (
     <div className="aurora-calendar">
@@ -79,12 +87,12 @@ const CustomCalendar = ({ onDateClick, holidays = [] }) => {
         {days.map((dayInfo, index) => (
           <div
             key={index}
-            className={`day-cell ${dayInfo.month !== 'current' ? 'not-current-month' : ''} ${isToday(dayInfo.date) ? 'today' : ''} ${isHoliday(dayInfo.date) ? 'holiday-background' : ''}`}
+            className={getDayClassName(dayInfo)}
             onClick={() => onDateClick(formatDateForId(dayInfo.date))}
           >
             <div className="day-number">{dayInfo.day}</div>
             <div className="events-container">
-                {/* Adicionar pontos de eventos aqui se necessário */}
+              {/* Future implementation for event dots */}
             </div>
           </div>
         ))}

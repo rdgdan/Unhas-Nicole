@@ -15,15 +15,20 @@
   --glow-color: rgba(190, 147, 253, 0.15);
   --positive-color: #00D2A0;
   --negative-color: #FF6B6B;
+
+  /* Calendar Vars - Dark */
+  --calendar-day-bg: transparent;
+  --calendar-accent-text: var(--accent-secondary);
+  --calendar-today-bg: var(--accent-primary);
 }
 
 /* --- PEACH CHIC Light Theme --- */
 body[data-theme='light'] {
   --background-primary: #FFF7F5; /* Tom de pêssego/rosé muito sutil */
   --background-secondary: #FFFFFF;
-  --card-background: rgba(255, 255, 255, 0.75); /* Branco com transparência para o vidro */
+  --card-background: rgba(255, 255, 255, 0.75);
   --text-primary: #4A3F3F; /* Marrom escuro rico */
-  --text-secondary: #8A7F7F; /* Tom mais claro para texto secundário */
+  --text-secondary: #8A7F7F;
   --border-color: #F0E5E3;
   --border-hover: #E8D8D5;
   --accent-primary: #A365F8; /* Roxo um pouco mais saturado para contraste */
@@ -31,6 +36,11 @@ body[data-theme='light'] {
   --glow-color: rgba(190, 147, 253, 0.15);
   --positive-color: #009975;
   --negative-color: #C0392B;
+
+  /* Calendar Vars - Light */
+  --calendar-day-bg: #FBE0E6; /* Rosa pêssego para o fundo dos dias */
+  --calendar-accent-text: #D95383; /* Rosa mais forte para texto de fim de semana/feriado */
+  --calendar-today-bg: var(--accent-primary);
 }
 
 /* --- Dynamic Background Blobs --- */
@@ -72,10 +82,6 @@ body[data-theme='light']::after {
 
 /* --- Global Styles --- */
 
-/* --- A CORREÇÃO DEFINITIVA --- */
-/* Cria um novo contexto de empilhamento para toda a aplicação. */
-/* Isso isola a aplicação dos pseudo-elementos do body com z-index negativo, */
-/* prevenindo que eles interfiram com a propagação de eventos de bibliotecas como o FullCalendar. */
 #root {
   isolation: isolate;
 }
