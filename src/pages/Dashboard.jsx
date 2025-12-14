@@ -2,7 +2,7 @@
 import React from 'react';
 import './Dashboard.css';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell, LabelList
 } from 'recharts';
 import { FiUsers, FiCalendar, FiDollarSign, FiUserPlus, FiArrowUp, FiArrowDown } from 'react-icons/fi';
