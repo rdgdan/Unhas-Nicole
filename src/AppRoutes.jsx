@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
+import { AuthContext } from './context/auth';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Agenda from './pages/Agenda';
@@ -9,7 +9,7 @@ import MainLayout from './layouts/MainLayout';
 
 // Este componente protege as rotas que exigem autenticação
 const PrivateRoute = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser } = useContext(AuthContext);
   // Se não houver usuário logado, redireciona para a página de login
   return currentUser ? children : <Navigate to="/login" />;
 };

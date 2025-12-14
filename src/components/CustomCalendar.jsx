@@ -1,18 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './CustomCalendar.css';
 
 const CustomCalendar = ({ onDateClick, holidays = [] }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [days, setDays] = useState([]);
 
   const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-  // CORREÇÃO: A função foi movida para ANTES do useEffect e envolvida em useCallback
-  // para estabilidade e para corrigir o erro de linter.
-  const generateCalendarDays = useCallback((date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
+  const days = useMemo(() => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
 
     const firstDayOfMonth = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -30,20 +27,13 @@ const CustomCalendar = ({ onDateClick, holidays = [] }) => {
       daysArray.push({ day: i, month: 'current', date: new Date(year, month, i) });
     }
 
-    // A lógica original de 42 células (6 semanas) é mantida para garantir que
-    // todos os meses caibam sem quebrar a UI, mas o CSS vai torná-la compacta.
     const remainingCells = 42 - daysArray.length;
     for (let i = 1; i <= remainingCells; i++) {
       daysArray.push({ day: i, month: 'next', date: new Date(year, month + 1, i) });
     }
 
-    setDays(daysArray);
-  }, []); // useCallback sem dependências, pois a lógica é pura.
-
-  useEffect(() => {
-    generateCalendarDays(currentDate);
-  }, [currentDate, holidays, generateCalendarDays]);
-
+    return daysArray;
+  }, [currentDate]);
 
   const handlePrevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));

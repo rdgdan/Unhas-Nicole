@@ -1,17 +1,17 @@
 
-import React from 'react';
+import React, { useContext } from 'react';
 import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useSidebar } from '../context/SidebarContext';
-import { useTheme } from '../context/ThemeContext'; // Import useTheme
+import { AuthContext } from '../context/auth';
+import { SidebarContext } from '../context/sidebar';
+import { ThemeContext } from '../context/theme'; 
 import { FiHome, FiCalendar, FiLogOut, FiMenu, FiSun, FiMoon, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
-  const { isCollapsed, toggleSidebar } = useSidebar();
-  const { theme, toggleTheme } = useTheme(); // Use o hook de tema
+  const { logout } = useContext(AuthContext);
+  const { isCollapsed, toggleSidebar } = useContext(SidebarContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   const handleLogout = () => {
     logout();

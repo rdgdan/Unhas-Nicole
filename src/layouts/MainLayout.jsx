@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+
+import React, { useState, useContext } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Calendar, LogOut, ChevronLeft, Sun, Moon } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
+import { AuthContext } from '../context/auth';
+import { ThemeContext } from '../context/theme';
 import './MainLayout.css';
 
 const MainLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { logout } = useContext(AuthContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isActive = (path) => location.pathname === path;

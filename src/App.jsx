@@ -1,11 +1,11 @@
 
-import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { SidebarProvider } from "./context/SidebarContext";
-import { ThemeProvider } from "./context/ThemeContext";
-import AppRoutes from "./AppRoutes";
-import './App.css'; // <-- ADICIONANDO A IMPORTAÇÃO
+import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import AppRoutes from './AppRoutes';
+import AuthProvider from './context/AuthProvider';
+import ThemeProvider from './context/ThemeProvider';
+import SidebarProvider from './context/SidebarProvider';
+import './App.css';
 
 function App() {
   return (
