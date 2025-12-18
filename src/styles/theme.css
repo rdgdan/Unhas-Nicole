@@ -1,0 +1,56 @@
+/* src/styles/theme.css */
+
+/* 
+  Este arquivo centraliza as variáveis de cor da aplicação,
+  definindo a paleta "Aurora" para os modos claro e escuro.
+*/
+
+/* ------------------------------ TEMA ESCURO (PADRÃO) ----------------------------- */
+
+:root, [data-theme='dark'] {
+  /* Paleta Aurora Dark - Inspirada no GitHub Dark Mode */
+  --color-primary: #8A3FFC;         /* Roxo vibrante para ações principais */
+  --color-primary-light: #30224b;  /* Roxo escuro sutil para fundos de item ativo */
+  --color-primary-dark: #a061ff;   /* Roxo mais claro para hover */
+  --color-secondary: #08BDBA;      /* Ciano para destaques secundários */
+
+  /* Fundos */
+  --color-background: #0D1117;     /* Fundo principal, azul-ardósia profundo */
+  --color-surface: #161B22;       /* Superfícies como cards, modais, sidebar */
+  --color-surface-accent: #21262D; /* Fundo para inputs, hover de itens */
+
+  /* Textos */
+  --color-text-primary: #E6EDF3;   /* Texto principal, branco suave */
+  --color-text-secondary: #7D8590; /* Texto secundário, cinza médio */
+  --color-text-muted: #484F58;     /* Placeholders e textos silenciados */
+  --color-text-on-primary: #FFFFFF;/* Texto sobre botões roxos */
+
+  /* Bordas */
+  --color-border: #30363D;
+  --color-border-light: #21262D;
+}
+
+/* --------------------------------- TEMA CLARO -------------------------------- */
+
+[data-theme='light'] {
+  /* Paleta Aurora Light */
+  --color-primary: #8A3FFC;         /* Roxo vibrante (mesmo do dark) */
+  --color-primary-light: #f2eafa;  /* Lavanda muito claro para fundos ativos */
+  --color-primary-dark: #6e2cdb;   /* Roxo mais escuro para hover */
+  --color-secondary: #08BDBA;      /* Ciano (mesmo do dark) */
+
+  /* Fundos */
+  --color-background: #F6F8FA;     /* Fundo principal, cinza claro sutil */
+  --color-surface: #FFFFFF;       /* Superfícies brancas */
+  --color-surface-accent: #EFF2F5; /* Fundo para inputs, hover de itens */
+
+  /* Textos */
+  --color-text-primary: #24292F;   /* Texto principal, cinza escuro */
+  --color-text-secondary: #57606A; /* Texto secundário, cinza médio */
+  --color-text-muted: #9DA6B1;     /* Placeholders e textos silenciados */
+  --color-text-on-primary: #FFFFFF;/* Texto sobre botões roxos */
+
+  /* Bordas */
+  --color-border: #D0D7DE;
+  --color-border-light: #E6EDF3;
+}

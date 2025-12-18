@@ -1,67 +1,100 @@
-
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/auth';
-import { useSidebar } from '../context/sidebarContext';
+import PropTypes from 'prop-types';
+import { NavLink } from 'react-router-dom';
+import { Home, Calendar, Users, Briefcase, Moon, Sun, LogOut, ChevronLeft, Instagram, Feather, Shield } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import './Sidebar.css';
-import { Home, Calendar, Users, LogOut, ChevronLeft, ChevronRight, Sun, Moon, Sparkles } from 'lucide-react';
 
-const Sidebar = () => {
-  const navigate = useNavigate();
-  const { logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
-  const { isCollapsed, toggleSidebar } = useSidebar();
+const Sidebar = ({ isCollapsed, toggleSidebar }) => {
+    // Acessa o contexto de autenticação e de tema
+    const { logout, userProfile } = useAuth(); // Pega o perfil completo do usuário
+    const { theme, toggleTheme } = useTheme();
 
-  const handleLogout = async () => {
-    try {
-        await logout();
-        navigate('/login');
-    } catch (error) {
-        console.error("Failed to logout: ", error);
-    }
-  };
+    // Verificação explícita da permissão de administrador
+    const isAdmin = userProfile?.roles?.includes('admin') || false;
 
-  return (
-    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-      <div className="sidebar-header">
-        <div className="logo-container">
-          <Sparkles className="logo-icon" />
-          <span className="logo-text">By Borges</span>
-        </div>
-        <button className="toggle-btn" onClick={toggleSidebar}>
-          {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
-        </button>
-      </div>
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (error) {
+            console.error("Erro ao fazer logout:", error);
+        }
+    };
 
-      <nav className="sidebar-nav">
-        <NavLink to="/" className="nav-item" end>
-          <Home size={22} />
-          <span className="nav-text">Início</span>
-        </NavLink>
-        <NavLink to="/agenda" className="nav-item">
-          <Calendar size={22} />
-          <span className="nav-text">Agenda</span>
-        </NavLink>
-        <NavLink to="/clientes" className="nav-item">
-          <Users size={22} />
-          <span className="nav-text">Clientes</span>
-        </NavLink>
-      </nav>
+    return (
+        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+            <div className="sidebar-header">
+                <div className="logo-wrapper">
+                    <Feather className="logo-icon" size={24} />
+                    <span className="logo-text">By Borges</span>
+                </div>
+                <button className="toggle-btn" onClick={toggleSidebar} title={isCollapsed ? 'Expandir menu' : 'Recolher menu'}>
+                    <ChevronLeft size={22} />
+                </button>
+            </div>
 
-      <div className="sidebar-footer">
-        <button className="nav-item" onClick={toggleTheme}>
-          {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
-          <span className="nav-text">{theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}</span>
-        </button>
-        <button className="nav-item logout" onClick={handleLogout}>
-          <LogOut size={22} />
-          <span className="nav-text">Sair</span>
-        </button>
-        <p className="sidebar-signature">@nailsdesignbyborges</p>
-      </div>
-    </aside>
-  );
+            <ul className="sidebar-nav">
+                <li>
+                    <NavLink to="/dashboard" className="nav-item" title="Dashboard">
+                        <Home size={20} className="nav-icon" />
+                        <span className="nav-text">Dashboard</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/agenda" className="nav-item" title="Agenda">
+                        <Calendar size={20} className="nav-icon" />
+                        <span className="nav-text">Agenda</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/clientes" className="nav-item" title="Clientes">
+                        <Users size={20} className="nav-icon" />
+                        <span className="nav-text">Clientes</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/servicos" className="nav-item" title="Serviços">
+                        <Briefcase size={20} className="nav-icon" />
+                        <span className="nav-text">Serviços</span>
+                    </NavLink>
+                </li>
+                
+                {/* A MÁGICA ACONTECE AQUI */}
+                {/* O botão Admin só é renderizado se o usuário tiver a permissão */}
+                {isAdmin && (
+                    <li>
+                        <NavLink to="/admin" className="nav-item" title="Administração">
+                            <Shield size={20} className="nav-icon" />
+                            <span className="nav-text">Admin</span>
+                        </NavLink>
+                    </li>
+                )}
+            </ul>
+
+            <ul className="sidebar-footer">
+                <li className="nav-item" onClick={toggleTheme} title={`Mudar para tema ${theme === 'dark' ? 'claro' : 'escuro'}`}>
+                    {theme === 'dark' ? <Sun size={20} className="nav-icon" /> : <Moon size={20} className="nav-icon" />}
+                    <span className="nav-text">Mudar Tema</span>
+                </li>
+                <li>
+                    <a href="https://instagram.com/byborges" target="_blank" rel="noopener noreferrer" className="nav-item" title="Instagram">
+                        <Instagram size={20} className="nav-icon" />
+                        <span className="nav-text">Instagram</span>
+                    </a>
+                </li>
+                <li className="nav-item" onClick={handleLogout} title="Sair">
+                    <LogOut size={20} className="nav-icon" />
+                    <span className="nav-text">Sair</span>
+                </li>
+            </ul>
+        </aside>
+    );
+};
+
+Sidebar.propTypes = {
+  isCollapsed: PropTypes.bool.isRequired,
+  toggleSidebar: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

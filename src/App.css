@@ -1,1 +1,7 @@
-/* O conteúdo deste arquivo foi movido para MainLayout.css e index.css para melhor organização. */
+/* 
+  Os estilos principais da aplicação, como layout e temas,
+  foram movidos para src/index.css para evitar duplicidade.
+
+  Este arquivo pode ser usado para estilos específicos do componente App,
+  se necessário no futuro.
+*/

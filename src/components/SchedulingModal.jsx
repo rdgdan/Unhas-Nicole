@@ -1,177 +1,387 @@
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { getServiceCategories } from '../services/firestoreService';
+
+import React, { useState, useEffect, useMemo } from 'react';
+import Modal from 'react-modal';
+import Select from 'react-select';
+import { useData } from '../contexts/DataContext';
+import { Timestamp } from 'firebase/firestore';
+import { X, ArrowRight, ArrowLeft } from 'lucide-react';
 import './SchedulingModal.css';
 
-const ProgressBar = ({ currentStep }) => (
-  <ol className="progress-bar">
-    <li className={currentStep >= 1 ? 'progress-step active' : 'progress-step'}><span>1</span>Serviço</li>
-    <li className={currentStep >= 2 ? 'progress-step active' : 'progress-step'}><span>2</span>Detalhes</li>
-    <li className={currentStep >= 3 ? 'progress-step active' : 'progress-step'}><span>3</span>Confirmar</li>
-  </ol>
-);
+Modal.setAppElement('#root');
 
-const SchedulingModal = ({ isOpen, onClose, onSave, selectedDate, eventToEdit, clientForScheduling }) => {
-  const [currentStep, setCurrentStep] = useState(1);
+// Função para obter o valor da variável CSS
+// Nota: Isso só funciona no lado do cliente e pode não ser ideal para SSR.
+const getCssVar = (varName) => {
+    if (typeof window === 'undefined') return ''; // Retorna vazio se não estiver no navegador
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+};
+
+
+// Objeto de estilos dinâmico que se adapta ao tema
+const getCustomSelectStyles = () => ({
+    control: (provided, state) => ({
+        ...provided,
+        backgroundColor: 'var(--background-color-tertiary)',
+        border: `1px solid ${state.isFocused ? 'var(--accent-purple)' : 'var(--border-color)'}`,
+        borderRadius: '10px',
+        padding: '0.6rem',
+        boxShadow: state.isFocused ? '0 0 10px rgba(168, 85, 247, 0.3)' : 'none',
+        minHeight: '58px',
+        '&:hover': {
+            borderColor: 'var(--accent-purple)'
+        }
+    }),
+    menu: provided => ({
+        ...provided,
+        backgroundColor: 'var(--background-color-secondary)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '10px',
+    }),
+    menuPortal: (provided) => ({
+        ...provided,
+        zIndex: 99999,
+    }),
+    menuList: (provided) => ({
+        ...provided,
+        maxHeight: '220px',
+        overflowY: 'auto',
+        '::-webkit-scrollbar': {
+            width: '8px',
+        },
+        '::-webkit-scrollbar-track': {
+            background: 'var(--background-color-secondary)',
+            borderRadius: '10px',
+        },
+        '::-webkit-scrollbar-thumb': {
+            background: 'var(--border-color)',
+            borderRadius: '10px',
+        },
+        '::-webkit-scrollbar-thumb:hover': {
+            background: 'var(--background-color-tertiary)',
+        },
+    }),
+    option: (provided, state) => ({
+        ...provided,
+        backgroundColor: state.isSelected ? 'var(--accent-purple)' : state.isFocused ? 'var(--background-color-tertiary)' : 'transparent',
+        color: state.isSelected ? 'var(--text-color-contrast)' : 'var(--text-color-primary)',
+        cursor: 'pointer',
+        '&:active': {
+            backgroundColor: 'var(--accent-purple-darker)'
+        }
+    }),
+    singleValue: provided => ({
+        ...provided,
+        color: 'var(--text-color-primary)',
+    }),
+    input: provided => ({
+        ...provided,
+        color: 'var(--text-color-primary)',
+    }),
+    placeholder: provided => ({
+        ...provided,
+        color: 'var(--text-color-secondary)',
+    }),
+    indicatorSeparator: () => ({ display: 'none' }),
+    dropdownIndicator: (provided) => ({
+        ...provided,
+        color: 'var(--text-color-secondary)',
+        '&:hover': {
+            color: 'var(--text-color-primary)'
+        }
+    }),
+    noOptionsMessage: (provided) => ({
+        ...provided,
+        color: 'var(--text-color-secondary)'
+    })
+});
+
+
+const Stepper = ({ currentStep }) => {
+    const steps = ['Cliente', 'Serviço', 'Datas', 'Confirmação'];
+    return (
+        <div className="stepper-container">
+            {steps.map((title, index) => {
+                const stepIndex = index + 1;
+                let stepClass = 'step-item';
+                if (stepIndex === currentStep) stepClass += ' active';
+                else if (stepIndex < currentStep) stepClass += ' completed';
+                return (
+                    <div key={title} className={stepClass}>
+                        <div className="step-number">{stepIndex < currentStep ? '✓' : stepIndex}</div>
+                        <div className="step-title">{title}</div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
+const SchedulingModal = ({ isOpen, onClose, onSave, schedule, selectedDate }) => {
+  const { clients, services, serviceCategories } = useData();
+  
+  const [step, setStep] = useState(1);
+  const [isCreatingClient, setIsCreatingClient] = useState(false);
   const [formData, setFormData] = useState({});
-  const [serviceCategories, setServiceCategories] = useState([]);
-  const [subclasses, setSubclasses] = useState([]);
-  const isEditing = !!eventToEdit;
-  const isSchedulingFromClient = !!clientForScheduling;
+  const [internalError, setInternalError] = useState('');
+  
+  // Os estilos são agora um estado para que possam ser recalculados na montagem do modal
+  const [customSelectStyles, setCustomSelectStyles] = useState(getCustomSelectStyles());
 
   useEffect(() => {
     if (isOpen) {
-      const fetchCategories = async () => {
-        try {
-          const data = await getServiceCategories();
-          setServiceCategories(data);
-        } catch (error) {
-          console.error("Erro ao buscar categorias de serviço:", error);
-        }
+        // Força a reavaliação dos estilos CSS quando o modal é aberto
+        setCustomSelectStyles(getCustomSelectStyles());
+
+        setStep(1);
+        setIsCreatingClient(false);
+
+        const currentClient = schedule ? clients.find(c => c.id === schedule.clientId) : null;
+        const currentService = schedule ? services.find(s => s.id === schedule.serviceId) : null;
+        const currentCategory = currentService ? serviceCategories.find(c => c.id === currentService.categoryId) : null;
+
+        const scheduleDate = schedule?.start;
+        const initialDate = scheduleDate || selectedDate || new Date();
+        const duration = currentService?.duration || 0;
+
+        const initialData = {
+            clientSelection: currentClient ? { value: currentClient.id, label: `${currentClient.name} - ${currentClient.phone}` } : null,
+            isNewClient: false,
+            newClientName: '',
+            newClientPhone: '',
+            serviceCategory: currentCategory ? { value: currentCategory.id, label: currentCategory.name } : null,
+            serviceSubclass: schedule?.serviceId ? { value: schedule.serviceId, label: `${schedule.serviceName} - ${duration} min` } : null,
+            date: initialDate.toISOString().split('T')[0],
+            startTime: scheduleDate ? scheduleDate.toTimeString().slice(0, 5) : '09:00',
+            status: schedule?.status || 'pending',
+        };
+        setFormData(initialData);
+        setInternalError('');
+    }
+  }, [isOpen, schedule, selectedDate, clients, services, serviceCategories]);
+
+  const nextStep = () => { if (validateStep()) { setInternalError(''); setStep(s => s + 1); } };
+  const prevStep = () => setStep(s => s - 1);
+
+  const handleSaveNewClientAndAdvance = () => {
+      if (!formData.newClientName || !formData.newClientPhone) {
+          setInternalError('Nome e telefone são obrigatórios.');
+          return;
+      }
+      setFormData(prev => ({ ...prev, isNewClient: true, clientSelection: { value: 'new_client', label: formData.newClientName }}));
+      setInternalError('');
+      setStep(2);
+  };
+
+  const validateStep = () => {
+    setInternalError('');
+    switch (step) {
+        case 1:
+            if (!isCreatingClient && !formData.clientSelection) {
+                setInternalError('Você deve selecionar ou criar um cliente.');
+                return false;
+            }
+            if (isCreatingClient && (!formData.newClientName || !formData.newClientPhone)) {
+                setInternalError('Nome e telefone do novo cliente são obrigatórios.');
+                return false;
+            }
+            break;
+        case 2:
+            if (!formData.serviceCategory || !formData.serviceSubclass) {
+                setInternalError('Você deve selecionar a categoria e o serviço.');
+                return false;
+            }
+            break;
+        case 3:
+            if (!formData.date || !formData.startTime) {
+                setInternalError('Você deve definir a data e a hora do agendamento.');
+                return false;
+            }
+            break;
+        default: break;
+    }
+    return true;
+  };
+
+  const clientOptions = useMemo(() => 
+    clients
+      .filter(c => c.name) 
+      .map(c => ({ value: c.id, label: `${c.name} - ${c.phone || 'Sem telefone'}` }))
+  , [clients]);
+
+  const serviceCategoryOptions = useMemo(() => 
+    serviceCategories
+      .filter(cat => cat.name) 
+      .map(cat => ({ value: cat.id, label: cat.name }))
+  , [serviceCategories]);
+
+  const serviceSubclassOptions = useMemo(() => {
+      if (!formData.serviceCategory?.value) return [];
+      return services
+          .filter(s => s.categoryId === formData.serviceCategory.value && s.name)
+          .map(s => ({ value: s.id, label: `${s.name} - ${s.duration || 0} min` }));
+  }, [services, formData.serviceCategory]);
+
+  const handleInputChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleSelectChange = (name, option) => {
+      const newFormData = { ...formData, [name]: option };
+      if (name === 'serviceCategory') newFormData.serviceSubclass = null;
+      setFormData(newFormData);
+  };
+  const handleClientSelection = (option) => setFormData(prev => ({ ...prev, clientSelection: option, isNewClient: false }));
+
+  const handleSubmit = async () => {
+    const selectedService = services.find(s => s.id === formData.serviceSubclass?.value);
+    if (!selectedService) { setInternalError("Serviço selecionado não encontrado."); return; }
+
+    const startDateTime = new Date(`${formData.date}T${formData.startTime}`);
+    const duration = selectedService.duration || 0;
+    const endDateTime = new Date(startDateTime.getTime() + (duration * 60000));
+    
+    let clientInfo = {};
+    if (formData.isNewClient) {
+        clientInfo = {
+            isNewClient: true,
+            clientName: formData.newClientName,
+            clientPhone: formData.newClientPhone,
+        };
+    } else {
+        const selectedClient = clients.find(c => c.id === formData.clientSelection.value);
+        clientInfo = {
+            isNewClient: false,
+            clientId: selectedClient.id,
+            clientName: selectedClient.name,
+            clientPhone: selectedClient.phone,
+        };
+    }
+
+    const dataToSave = {
+        id: schedule?.id,
+        ...clientInfo,
+        serviceId: selectedService.id,
+        serviceName: selectedService.name,
+        start: Timestamp.fromDate(startDateTime),
+        end: Timestamp.fromDate(endDateTime),
+        price: selectedService.price || 0, 
+        status: formData.status
+    };
+    
+    const success = await onSave(dataToSave);
+    if (success) onClose();
+  };
+
+  const renderStepContent = () => {
+      const commonSelectProps = {
+        styles: customSelectStyles, // Usa o estado dos estilos
+        noOptionsMessage: () => 'Nenhuma opção disponível',
+        loadingMessage: () => 'Carregando...',
+        menuPortalTarget: document.body, 
+        menuPosition: 'fixed', 
       };
-      fetchCategories();
+
+    switch (step) {
+      case 1:
+        return (
+          <>
+            <div className="step-header"><h3>{isCreatingClient ? 'Novo Cliente' : 'Selecione um Cliente'}</h3></div>
+            {isCreatingClient ? (
+                <>
+                    <div className="form-group"><label>Nome do Cliente</label><input type="text" name="newClientName" value={formData.newClientName || ''} onChange={handleInputChange} required/></div>
+                    <div className="form-group"><label>Telefone</label><input type="tel" name="newClientPhone" value={formData.newClientPhone || ''} onChange={handleInputChange} required/></div>
+                </>
+            ) : (
+                <>
+                    <div className="form-group"><label>Buscar Cliente Existente</label><Select {...commonSelectProps} options={clientOptions} value={formData.clientSelection} onChange={handleClientSelection} placeholder="Digite nome ou telefone..."/></div>
+                    <div className="or-divider"><span>OU</span></div>
+                    <button onClick={() => setIsCreatingClient(true)} className="footer-btn-secondary centered">+ Criar Novo Cliente</button>
+                </>
+            )}
+          </>
+        );
+      case 2:
+        return (
+          <>
+              <div className="step-header"><h3>Selecione o Serviço</h3></div>
+              <div className="form-group"><label>Categoria</label><Select {...commonSelectProps} options={serviceCategoryOptions} value={formData.serviceCategory} onChange={(o) => handleSelectChange('serviceCategory', o)} placeholder="Selecione a categoria..."/></div>
+              <div className="form-group"><label>Serviço</label><Select {...commonSelectProps} isDisabled={!formData.serviceCategory} options={serviceSubclassOptions} value={formData.serviceSubclass} onChange={(o) => handleSelectChange('serviceSubclass', o)} placeholder="Selecione o serviço..."/></div>
+          </>
+        );
+      case 3:
+        return (
+          <>
+              <div className="step-header"><h3>Defina a Data e Hora</h3></div>
+              <div className="form-group"><label>Data do Agendamento</label><input type="date" name="date" value={formData.date || ''} onChange={handleInputChange} required/></div>
+              <div className="form-group"><label>Hora de Início</label><input type="time" name="startTime" value={formData.startTime || ''} onChange={handleInputChange} required/></div>
+              <div className="form-group"><label>Status do Pagamento</label><Select {...commonSelectProps} options={[{value: 'pending', label: 'Pendente'}, {value: 'paid', label: 'Pago'}]} value={{value: formData.status, label: formData.status === 'paid' ? 'Pago' : 'Pendente'}} onChange={(o) => setFormData(p => ({...p, status: o.value}))} /></div>
+          </>
+        );
+      case 4:
+        return (
+          <>
+            <div className="step-header"><h3>Confirme os Detalhes</h3></div>
+            <div className="summary">
+                <p><strong>Cliente:</strong> {formData.isNewClient ? `${formData.newClientName} (${formData.newClientPhone})` : formData.clientSelection?.label}</p>
+                <p><strong>Serviço:</strong> {formData.serviceSubclass?.label ? formData.serviceSubclass.label.split(' - ')[0] : ''}</p>
+                <p><strong>Data:</strong> {formData.date ? new Date(formData.date + 'T00:00:00').toLocaleDateString('pt-BR') : ''} às {formData.startTime}</p>
+                <p><strong>Valor:</strong> {services.find(s => s.id === formData.serviceSubclass?.value)?.price?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) || 'R$ 0,00'}</p>
+                <p><strong>Pagamento:</strong> {formData.status === 'paid' ? 'Pago' : 'Pendente'}</p>
+            </div>
+          </>
+        );
+      default:
+        return null;
     }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    setCurrentStep(1);
-    const initialData = {
-      clientName: clientForScheduling?.name || eventToEdit?.clientName || '',
-      clientPhone: clientForScheduling?.phone || eventToEdit?.clientPhone || '',
-      serviceClass: eventToEdit?.serviceClass || '',
-      serviceSubclass: eventToEdit?.serviceSubclass || '',
-      price: eventToEdit?.price || '',
-      paymentStatus: eventToEdit?.paymentStatus || 'Pendente',
-      date: eventToEdit?.start || selectedDate || new Date().toISOString().split('T')[0]
-    };
-    setFormData(initialData);
-
-    if (initialData.serviceClass && serviceCategories.length > 0) {
-        const category = serviceCategories.find(c => c.name === initialData.serviceClass);
-        if(category) setSubclasses(category.subclasses);
-    }
-
-  }, [isOpen, eventToEdit, clientForScheduling, serviceCategories, selectedDate]);
-
-  const handleClassChange = (e) => {
-    const className = e.target.value;
-    const category = serviceCategories.find(c => c.name === className);
-    const newSubclasses = category ? category.subclasses : [];
-    setSubclasses(newSubclasses);
-    setFormData(prev => ({ 
-        ...prev, 
-        serviceClass: className, 
-        serviceSubclass: newSubclasses.length > 0 ? newSubclasses[0] : '' 
-    }));
   };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleNextStep = () => {
-    if (currentStep === 1) {
-        if (!formData.serviceClass || !formData.serviceSubclass) {
-            alert('Por favor, selecione a categoria e o tipo de serviço para continuar.');
-            return;
-        }
-    }
-    if (currentStep === 2) {
-        if (!formData.clientName || !formData.clientPhone || !formData.price) {
-            alert('Por favor, preencha o nome, telefone e valor para continuar.');
-            return;
-        }
-    }
-    setCurrentStep(p => p + 1);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const finalEventData = {
-      ...formData,
-      title: `${formData.serviceSubclass} - ${formData.clientName}`,
-      start: formData.date,
-      allDay: true,
-    };
-    onSave(finalEventData);
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content">
-        <button type="button" className="close-modal-button" onClick={onClose}><X size={24} /></button>
-        <h2 className="modal-title">{isEditing ? 'Editar Agendamento' : 'Novo Agendamento'}</h2>
-        <ProgressBar currentStep={currentStep} />
-
-        <form onSubmit={handleSubmit}>
-          {currentStep === 1 && (
-            <fieldset className="form-section">
-                <div className="form-group">
-                    <label htmlFor="serviceClass">Categoria do Serviço</label>
-                    <select id="serviceClass" name="serviceClass" value={formData.serviceClass} onChange={handleClassChange} required>
-                        <option value="">Selecione a categoria...</option>
-                        {serviceCategories.map(cat => <option key={cat.id || cat.name} value={cat.name}>{cat.name}</option>)}
-                    </select>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="serviceSubclass">Tipo de Serviço</label>
-                    <select id="serviceSubclass" name="serviceSubclass" value={formData.serviceSubclass} onChange={handleChange} required disabled={!formData.serviceClass}>
-                        <option value="">Selecione o tipo...</option>
-                        {subclasses.map(sub => <option key={sub} value={sub}>{sub}</option>)}
-                    </select>
-                </div>
-            </fieldset>
-          )}
-          
-          {currentStep === 2 && (
-            <fieldset className="form-section">
-                <div className="form-group">
-                    <label htmlFor="clientName">Nome do Cliente</label>
-                    <input type="text" id="clientName" name="clientName" value={formData.clientName} onChange={handleChange} required disabled={isSchedulingFromClient && isEditing} />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="clientPhone">Telefone</label>
-                    <input type="tel" id="clientPhone" name="clientPhone" value={formData.clientPhone} onChange={handleChange} required disabled={isSchedulingFromClient && isEditing}/>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="price">Valor (R$)</label>
-                    <input type="number" step="0.01" id="price" name="price" value={formData.price} onChange={handleChange} placeholder="Ex: 70.00" required/>
-                </div>
-                 {!isEditing && (
-                    <div className="form-group">
-                        <label htmlFor="date">Data do Agendamento</label>
-                        <input type="date" id="date" name="date" value={formData.date} onChange={handleChange} required />
-                    </div>
-                )}
-            </fieldset>
-          )}
-
-          {currentStep === 3 && (
-             <div className="details-section">
-                <h3>Revise e Confirme</h3>
-                <div className="detail-item"><strong>Data:</strong> {new Date(formData.date + 'T00:00:00').toLocaleDateString('pt-BR')}</div>
-                <div className="detail-item"><strong>Cliente:</strong> {formData.clientName}</div>
-                <div className="detail-item"><strong>Serviço:</strong> {formData.serviceClass} - {formData.serviceSubclass}</div>
-                <div className="detail-item"><strong>Valor:</strong> R$ {parseFloat(formData.price || 0).toFixed(2).replace('.', ',')}</div>
-              </div>
-          )}
-
-          <div className="step-navigation">
-            {currentStep > 1 && <button type="button" className="modal-button secondary" onClick={() => setCurrentStep(p => p - 1)}>Voltar</button>}
-            {currentStep < 3 ? (
-              <button type="button" className="modal-button primary" onClick={handleNextStep} style={{marginLeft: 'auto'}}>Avançar</button>
-            ) : (
-              <button type="submit" className="modal-button primary" style={{marginLeft: 'auto'}}>{isEditing ? 'Salvar Alterações' : 'Confirmar Agendamento'}</button>
-            )}
-          </div>
-        </form>
+    <Modal 
+      isOpen={isOpen} 
+      onRequestClose={onClose} 
+      className="modal-container"
+      overlayClassName="modal-overlay"
+    >
+      <div className="modal-header">
+        <div className="modal-title-area">
+            <h2>{schedule ? 'Editar Agendamento' : 'Novo Agendamento'}</h2>
+            <p>Siga os passos para {schedule ? 'atualizar o' : 'criar um novo'} agendamento.</p>
+        </div>
+        <button onClick={onClose} className="close-btn"><X size={24} /></button>
       </div>
-    </div>
+
+      <div className="modal-body">
+        <Stepper currentStep={step} />
+        {internalError && <p className="modal-error">{internalError}</p>}
+        {renderStepContent()}
+      </div>
+
+      <div className="modal-footer">
+        <button onClick={onClose} className="footer-btn-secondary">Cancelar</button>
+        <div className="footer-step-buttons">
+            {step > 1 && !isCreatingClient && (
+              <button onClick={prevStep} className="footer-btn-secondary with-icon">
+                  <ArrowLeft size={16} /> Anterior
+              </button>
+            )}
+             {step === 1 && isCreatingClient && (
+                <button onClick={() => setIsCreatingClient(false)} className="footer-btn-secondary with-icon">
+                    <ArrowLeft size={16} /> Voltar
+                </button>
+            )}
+            {isCreatingClient && step === 1 ? (
+              <button onClick={handleSaveNewClientAndAdvance} className="footer-btn-primary with-icon">
+                  Salvar e Avançar <ArrowRight size={16} />
+              </button>
+            ) : step < 4 ? (
+              <button onClick={nextStep} className="footer-btn-primary with-icon">
+                  Próximo <ArrowRight size={16} />
+              </button>
+            ) : (
+              <button onClick={handleSubmit} className="footer-btn-primary save-main-btn">
+                  {schedule ? 'Salvar Alterações' : 'Confirmar Agendamento'}
+              </button>
+            )}
+        </div>
+      </div>
+    </Modal>
   );
 };
 

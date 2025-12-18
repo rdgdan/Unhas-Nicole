@@ -1,33 +1,24 @@
-
-/* --- Estilos do Layout Principal --- */
-
-.app-layout {
-  display: flex;
-  height: 100vh;
-  background-color: var(--background-primary);
-  overflow: hidden;
+/* A regra de ouro que conserta o layout */
+.main-layout {
+    display: flex; /* Coloca a Sidebar e a área de conteúdo lado a lado */
 }
 
-.main-content {
-  flex-grow: 1;
-  height: 100vh;
-  overflow-y: auto;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* A área de conteúdo principal */
+.content-area {
+    flex-grow: 1; /* Faz com que esta área ocupe todo o espaço restante */
+    transition: margin-left 0.3s ease;
+    background-color: var(--background-color-primary);
 }
 
-/* Classe para o estado EXPANDIDO - Margem aumentada para dar folga */
-.main-content.expanded {
-  margin-left: 275px; /* Valor ajustado de 260px para 275px */
+/* O conteúdo real da página */
+.page-content {
+    padding: 1.5rem;
+    /* Adicione outros estilos que desejar para a área de conteúdo */
 }
 
-/* Classe para o estado RECOLHIDO */
-.main-content.collapsed {
-  margin-left: 90px; /* Largura da sidebar recolhida */
-}
-
-.page-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2.5rem;
-  box-sizing: border-box;
-}
+/*
+  Ajuste de margem quando a sidebar está recolhida.
+  A largura da sidebar recolhida é 80px, então a margem precisa bater com isso.
+  Esta regra foi removida porque a lógica de recolhimento foi simplificada 
+  e não depende mais de margens, mas sim da largura fixa da sidebar.
+*/

@@ -5,12 +5,12 @@ import { getFirestore } from "firebase/firestore"; // Importa o Firestore
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCPTpuOWymGBVbFrjfWaBh5GA-g_RjzsGM",
-  authDomain: "celtic-shape-454100-b1.firebaseapp.com",
-  projectId: "celtic-shape-454100-b1",
-  storageBucket: "celtic-shape-454100-b1.appspot.com",
-  messagingSenderId: "670359528005",
-  appId: "1:670359528005:web:d0d51f460ac51e4269792c"
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID
 };
 
 // Initialize Firebase

@@ -1,0 +1,102 @@
+/* --- Estilos para o Gerenciamento de Usuários --- */
+
+.user-management-container {
+    padding: 1rem;
+}
+
+.user-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.user-management-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Estado de feedback para carregando, erro ou vazio */
+.admin-feedback-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-color-secondary);
+}
+
+.admin-feedback-state p {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.admin-feedback-state.error p {
+    color: #ef4444; /* Vermelho para erros */
+}
+
+.admin-feedback-state .spin-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Tabela de Usuários */
+.user-table-wrapper {
+    overflow-x: auto; /* Para rolagem em telas pequenas */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table th, .user-table td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.user-table th {
+    background-color: var(--background-color-tertiary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-color-secondary);
+}
+
+.user-table tr:last-child td {
+    border-bottom: none;
+}
+
+.user-table tr:hover {
+    background-color: rgba(139, 92, 246, 0.05); /* Um hover roxo bem sutil */
+}
+
+.user-table td {
+    color: var(--text-color-primary);
+    font-size: 0.95rem;
+}
+
+/* O mesmo estilo de interruptor usado na página de serviços */
+.switch-list-item { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch-list-item input { opacity: 0; width: 0; height: 0; }
+
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4b5563; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
+
+input:checked + .slider { background-color: var(--primary-color); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+.slider.round { border-radius: 24px; }
+.slider.round:before { border-radius: 50%; }

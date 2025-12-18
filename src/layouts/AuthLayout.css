@@ -1,0 +1,100 @@
+/* === CSS para o Novo AuthLayout de Painel Dividido === */
+
+@keyframes slow-zoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-layout-container {
+  display: grid;
+  /* Apenas para desktop, conforme solicitado: 45% para a imagem, 55% para o formulário */
+  grid-template-columns: 45% 55%;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden; /* Garante que a imagem com zoom não crie barras de rolagem */
+}
+
+/* === PAINEL ESQUERDO (A EMOÇÃO) === */
+.auth-layout-showcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centraliza o conteúdo verticalmente */
+  align-items: center; /* Centraliza o conteúdo horizontalmente */
+  padding: 3rem;
+  color: white;
+  text-align: center;
+  overflow: hidden; /* Esconde o excesso da imagem que faz o zoom */
+}
+
+.auth-layout-showcase::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('https://images.unsplash.com/photo-1604902396328-37a54a938133?q=80&w=1974&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  z-index: -2;
+  /* Animação de zoom lento e infinito */
+  animation: slow-zoom 8s infinite alternate ease-in-out;
+}
+
+.auth-layout-showcase::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Overlay escuro para garantir a legibilidade do texto */
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+}
+
+.showcase-content {
+  /* Animação de entrada */
+  animation: fade-in-up 1s ease-out forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.showcase-content h1 {
+  font-size: 2.5rem; /* By Borges */
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+
+.showcase-content p {
+  font-size: 1.25rem; /* Slogan */
+  font-weight: 300;
+  max-width: 450px;
+  line-height: 1.6;
+}
+
+/* === PAINEL DIREITO (A AÇÃO) === */
+.auth-layout-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  background-color: var(--background-color-primary);
+}

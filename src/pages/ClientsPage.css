@@ -1,123 +1,160 @@
 
-/* --- Estilos da Página de Clientes --- */
-
-.clients-page {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem; /* Espaço entre o cabeçalho e a tabela */
+.clients-container {
+  padding: 2rem;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-/* --- Cabeçalho da Página --- */
-.page-header {
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.clients-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.header-content h1 {
-  font-family: var(--font-serif);
-  font-size: 2.5rem;
-  margin: 0 0 0.5rem 0;
-  color: var(--text-primary);
-}
-
-.header-content p {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-/* --- Botão Adicionar Cliente --- */
-.add-client-btn {
-  display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 12px;
-  background-color: var(--accent-primary);
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 20px var(--glow-color);
+  margin-bottom: 2rem;
 }
 
-.add-client-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), 0 0 25px var(--glow-color);
-}
-
-.add-client-btn svg {
-  font-size: 1.2rem;
-}
-
-/* --- Container da Tabela --- */
-.clients-table-container {
-  background-color: var(--card-background);
-  border-radius: 12px;
-  overflow: hidden; /* Para que a borda arredondada funcione com a tabela */
-  border: 1px solid var(--border-color);
-}
-
-/* --- Tabela --- */
-.clients-table {
-  width: 100%;
-  border-collapse: collapse; /* Remove espaços entre as células */
-}
-
-.clients-table th, .clients-table td {
-  padding: 1.25rem 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.clients-table th {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  background-color: rgba(0,0,0,0.1);
-}
-
-.clients-table td {
-  font-size: 1rem;
+.clients-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
-/* Remove a borda da última linha */
-.clients-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* Efeito de hover nas linhas */
-.clients-table tbody tr:hover {
-  background-color: var(--background-hover);
-}
-
-/* --- Célula de Ações --- */
-.action-cell {
-  display: flex;
-  gap: 1rem;
-}
-
-.action-btn {
-  background: transparent;
+.btn-add-client {
+  background-color: var(--primary-color);
+  color: #fff;
   border: none;
-  color: var(--text-secondary);
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 1.2rem;
-  transition: color 0.2s ease;
-  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(93, 9, 239, 0.2);
 }
 
-.action-btn.edit-btn:hover {
-  color: var(--accent-primary);
+.btn-add-client:hover {
+  background-color: var(--primary-color-dark);
+  box-shadow: 0 6px 16px rgba(93, 9, 239, 0.3);
 }
 
-.action-btn.delete-btn:hover {
-  color: var(--error-color);
+.loading-state, .empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  margin-top: 2rem;
 }
+
+.loading-state .spin-icon {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.client-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.client-card {
+  background-color: var(--background-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.client-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.client-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.client-avatar {
+  background-color: var(--primary-color-light);
+  color: var(--primary-color);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.client-card-header h3 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.client-card-body {
+  flex-grow: 1;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.client-card-body p {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.text-secondary-dark {
+    color: var(--text-secondary-dark);
+}
+
+.client-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.btn-edit, .btn-delete {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-edit:hover {
+  background-color: var(--primary-color-light);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-delete:hover {
+  background-color: #ffeff2;
+  color: #e53e3e;
+  border-color: #e53e3e;
+}
+

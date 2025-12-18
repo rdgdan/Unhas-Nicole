@@ -1,134 +1,174 @@
 
-import React from 'react';
-import './Dashboard.css';
+import React, { useMemo, useState, useContext } from 'react';
+import { DataContext } from '../contexts/DataContext';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Cell, LabelList
+  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { FiUsers, FiCalendar, FiDollarSign, FiUserPlus, FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { DollarSign, Calendar, Users, TrendingUp, Filter, Loader } from 'lucide-react';
+import './Dashboard.css';
 
-// --- DADOS DOS KPIs ---
-const kpiData = {
-  clients: [
-    { title: 'Clientes Atendidos', value: '128', change: '+15%', changeType: 'positive', icon: <FiUsers /> },
-    { title: 'Agendamentos do Mês', value: '42', change: '+5%', changeType: 'positive', icon: <FiCalendar /> },
-    { title: 'Novos Clientes', value: '8', change: '-10%', changeType: 'negative', icon: <FiUserPlus /> },
-  ],
-  revenue: [
-    { title: 'Receita do Mês', value: 'R$ 6.000,00', change: '+20%', changeType: 'positive', icon: <FiDollarSign /> },
-  ]
+const toDate = (dateSource) => {
+  if (!dateSource) return null;
+  if (dateSource.toDate) return dateSource.toDate();
+  const date = new Date(dateSource);
+  return isNaN(date.getTime()) ? null : date;
 };
 
-// --- DADOS DOS GRÁFICOS ---
-const revenueData = [
-  { name: 'Jan', receita: 4000 }, { name: 'Fev', receita: 3000 },
-  { name: 'Mar', receita: 5000 }, { name: 'Abr', receita: 4500 },
-  { name: 'Mai', receita: 6000 }, { name: 'Jun', receita: 5500 },
-];
-
-const clientData = [
-  { name: 'Jan', clientes: 20 }, { name: 'Fev', clientes: 25 },
-  { name: 'Mar', clientes: 22 }, { name: 'Abr', clientes: 30 },
-  { name: 'Mai', clientes: 28 }, { name: 'Jun', clientes: 35 },
-];
-
-// NOVO GRÁFICO: Modelos de unha mais realizados
-const nailModelData = [
-    { name: 'Francesinha', count: 45 },
-    { name: 'Stiletto', count: 30 },
-    { name: 'Amendoada', count: 25 },
-    { name: 'Bailarina', count: 18 },
-    { name: 'Fibra de Vidro', count: 12 },
-];
-const COLORS = ['#BF93FD', '#A073E8', '#8155D0', '#6237B9', '#4E2C94'];
-
-// --- COMPONENTES REUTILIZÁVEIS ---
-const KpiCard = ({ title, value, change, changeType, icon }) => (
-  <div className="kpi-card">
-    <div className="kpi-icon-wrapper">{icon}</div>
-    <div className="kpi-content">
-        <h4>{title}</h4>
-        <p>{value}</p>
-        <div className={`kpi-change ${changeType}`}>
-            {changeType === 'positive' ? <FiArrowUp /> : <FiArrowDown />}
-            <span>{change.replace(/[+-]/g, '')}</span>
-        </div>
-    </div>
-  </div>
-);
-
-// --- COMPONENTE PRINCIPAL ---
 const Dashboard = () => {
+  const { schedules, loading } = useContext(DataContext);
+  const [period, setPeriod] = useState('thisMonth');
+
+  // ANALYTICS DO PERÍODO PASSADO
+  const periodAnalytics = useMemo(() => {
+    const now = new Date();
+    let startDate = new Date();
+
+    if (period === 'last7days') startDate.setDate(now.getDate() - 7);
+    else if (period === 'last30days') startDate.setDate(now.getDate() - 30);
+    else if (period === 'thisMonth') startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    const relevantSchedules = period === 'allTime' 
+      ? schedules.filter(s => toDate(s.start) <= now)
+      : schedules.filter(s => {
+          const scheduleDate = toDate(s.start);
+          return scheduleDate && scheduleDate >= startDate && scheduleDate <= now;
+        });
+
+    // **NOVA MÉTRICA: Clientes únicos atendidos no período**
+    const attendedClientsCount = new Set(relevantSchedules.map(s => s.clientId)).size;
+
+    const paidSchedules = relevantSchedules.filter(s => s.status === 'paid');
+    const totalRevenue = paidSchedules.reduce((sum, s) => sum + (s.price || 0), 0);
+    
+    const revenueByDay = paidSchedules.reduce((acc, s) => {
+      const day = toDate(s.start).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      acc[day] = (acc[day] || 0) + s.price;
+      return acc;
+    }, {});
+    const revenueChartData = Object.keys(revenueByDay).map(day => ({
+      date: day, Receita: revenueByDay[day]
+    })).sort((a, b) => new Date(a.date.split('/').reverse().join('-')) - new Date(b.date.split('/').reverse().join('-')));
+
+    const serviceCounts = relevantSchedules.reduce((acc, s) => {
+        const serviceName = s.serviceName || 'N/A';
+        acc[serviceName] = (acc[serviceName] || 0) + 1;
+        return acc;
+    }, {});
+    const topServices = Object.entries(serviceCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5);
+
+    const clientSpending = paidSchedules.reduce((acc, s) => {
+        const clientName = s.clientName || 'N/A';
+        acc[clientName] = (acc[clientName] || 0) + s.price;
+        return acc;
+    }, {});
+    const topClients = Object.entries(clientSpending).map(([name, total]) => ({ name, total })).sort((a, b) => b.total - a.total).slice(0, 5);
+
+    return {
+      totalRevenue,
+      attendedClientsCount, // Retornando a nova métrica
+      revenueChartData,
+      topServices,
+      topClients
+    };
+  }, [schedules, period]);
+
+  // ANALYTICS DO FUTURO (PROJEÇÃO)
+  const futureAnalytics = useMemo(() => {
+      const now = new Date();
+      const futureSchedules = schedules.filter(s => toDate(s.start) > now);
+      
+      const projectedRevenue = futureSchedules.reduce((sum, s) => sum + (s.price || 0), 0);
+
+      return {
+          projectedRevenue,
+          futureAppointmentsCount: futureSchedules.length
+      }
+  }, [schedules]);
+
+  if (loading) {
+    return <div className="loading-state-full"><Loader className="spin-icon" /> Carregando dashboard...</div>
+  }
+
   return (
-    <div className="dashboard-container">
-      <header className="main-header">
-        <h2>Dashboard</h2>
-        <p>Bem-vinda de volta, aqui está um resumo do seu negócio.</p>
+    <div className="dashboard-page">
+      <header className="page-header">
+        <div className="header-content"><h1>Dashboard</h1><p>Análise de desempenho e projeções futuras.</p></div>
+        <div className="header-actions">
+          <div className="filter-container"><Filter size={16} /><select value={period} onChange={(e) => setPeriod(e.target.value)} className="period-select"><option value="thisMonth">Este Mês</option><option value="last7days">Últimos 7 dias</option><option value="last30days">Últimos 30 dias</option><option value="allTime">Todo o Período</option></select></div>
+        </div>
       </header>
 
-      {/* --- SEÇÃO DE KPIs DE CLIENTES --- */}
-      <div className="kpi-section-header"><h3>Clientes</h3></div>
-      <div className="kpi-grid clients">
-        {kpiData.clients.map(kpi => <KpiCard key={kpi.title} {...kpi} />)}
+      {/* REFINADO PARA 4 KPIs ESSENCIAIS */}
+      <div className="kpi-grid-four">
+        <div className="kpi-card">
+            <div className="card-header"><h3 className="card-title">Receita Paga (Período)</h3><DollarSign className="card-icon revenue" /></div>
+            <p className="card-value">R$ {periodAnalytics.totalRevenue?.toFixed(2).replace('.', ',')}</p>
+        </div>
+        <div className="kpi-card">
+            <div className="card-header"><h3 className="card-title">Clientes Atendidos (Período)</h3><Users className="card-icon clients" /></div>
+            <p className="card-value">{periodAnalytics.attendedClientsCount}</p>
+        </div>
+        <div className="kpi-card">
+            <div className="card-header"><h3 className="card-title">Agendamentos (Futuro)</h3><Calendar className="card-icon appointments" /></div>
+            <p className="card-value">{futureAnalytics.futureAppointmentsCount}</p>
+        </div>
+        <div className="kpi-card">
+            <div className="card-header"><h3 className="card-title">Receita Futura (Total)</h3><TrendingUp className="card-icon future-revenue" /></div>
+            <p className="card-value">R$ {futureAnalytics.projectedRevenue?.toFixed(2).replace('.', ',')}</p>
+        </div>
       </div>
 
-      {/* --- SEÇÃO DE KPIs DE RECEITA --- */}
-      <div className="kpi-section-header"><h3>Receita</h3></div>
-      <div className="kpi-grid revenue">
-        {kpiData.revenue.map(kpi => <KpiCard key={kpi.title} {...kpi} />)}
-      </div>
-
-      {/* --- SEÇÃO DE GRÁFICOS --- */}
-      <div className="charts-container">
-        <div className="chart-card full-width">
-            <h3>Modelos de Unha Mais Realizados</h3>
-            <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={nailModelData} layout="vertical" margin={{ top: 20, right: 30, left: 40, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border-color)" />
-                    <XAxis type="number" hide />
-                    <YAxis 
-                        type="category" 
-                        dataKey="name" 
-                        stroke="var(--text-secondary)" 
-                        axisLine={false} 
-                        tickLine={false}
-                        width={100} 
-                    />
-                    <Tooltip cursor={{fill: 'var(--background-secondary)'}} contentStyle={{backgroundColor: 'var(--card-background)', border: '1px solid var(--border-color)'}}/>
-                    <Bar dataKey="count" barSize={35} radius={[0, 10, 10, 0]}>
-                        {nailModelData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                        <LabelList dataKey="count" position="right" style={{ fill: 'var(--text-primary)' }} />
-                    </Bar>
+      <div className="charts-grid">
+        <div className="chart-container">
+          <h3>Receita Paga no Período</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={periodAnalytics.revenueChartData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)"/>
+                <XAxis dataKey="date" tick={{ fill: 'var(--text-color-secondary)' }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fill: 'var(--text-color-secondary)' }} tickLine={false} axisLine={false} tickFormatter={(value) => `R$${value}`}/>
+                <Tooltip contentStyle={{ backgroundColor: 'var(--tooltip-bg)', border: '1px solid var(--border-color)' }}/>
+                <Legend />
+                <Line type="monotone" dataKey="Receita" stroke="var(--primary-color)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }}/>
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="chart-container">
+            <h3>Serviços Mais Realizados (Período)</h3>
+            <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={periodAnalytics.topServices} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border-color)"/>
+                    <XAxis type="number" tick={{ fill: 'var(--text-color-secondary)' }} tickLine={false} axisLine={false} />
+                    <YAxis type="category" dataKey="name" width={120} tick={{ fill: 'var(--text-color-secondary)' }} tickLine={false} axisLine={false}/>
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--tooltip-bg)', border: '1px solid var(--border-color)' }}/>
+                    <Legend />
+                    <Bar dataKey="count" name="Nº de Vezes" fill="var(--secondary-color)" barSize={20} />
                 </BarChart>
             </ResponsiveContainer>
         </div>
+      </div>
 
-        <div className="chart-card full-width"> {/* <-- MUDANÇA AQUI */}
-          <h3>Evolução da Receita</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)"/>
-              <XAxis dataKey="name" tickLine={false} axisLine={false} stroke="var(--text-secondary)" />
-              <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `R$${value/1000}k`} stroke="var(--text-secondary)" />
-              <Tooltip contentStyle={{backgroundColor: 'var(--card-background)', border: '1px solid var(--border-color)'}}/>
-              <Line type="monotone" dataKey="receita" stroke="var(--accent-primary)" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 8 }} />
-            </LineChart>
-          </ResponsiveContainer>
+      <div className="lists-grid">
+        <div className="list-container">
+          <h3>Top 5 Clientes por Faturamento (Pago, Período)</h3>
+          <ul>
+            {periodAnalytics.topClients?.map((client, index) => (
+              <li key={client.name}>
+                <div className="list-item-main"><span className="list-rank">#{index + 1}</span><span className="list-name">{client.name}</span></div>
+                <span className="list-value">R$ {client.total.toFixed(2).replace('.', ',')}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        
-        <div className="chart-card full-width"> {/* <-- MUDANÇA AQUI */}
-          <h3>Evolução de Clientes</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={clientData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)"/>
-              <XAxis dataKey="name" tickLine={false} axisLine={false} stroke="var(--text-secondary)" />
-              <YAxis tickLine={false} axisLine={false} stroke="var(--text-secondary)" />
-              <Tooltip contentStyle={{backgroundColor: 'var(--card-background)', border: '1px solid var(--border-color)'}}/>
-              <Line type="monotone" dataKey="clientes" stroke="var(--accent-primary)" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 8 }} />
-            </LineChart>
-          </ResponsiveContainer>
+         <div className="list-container">
+          <h3>Top 5 Serviços por Frequência (Período)</h3>
+          <ul>
+            {periodAnalytics.topServices?.map((service, index) => (
+              <li key={service.name}>
+                <div className="list-item-main"><span className="list-rank">#{index + 1}</span><span className="list-name">{service.name}</span></div>
+                <span className="list-value">{service.count} vezes</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

@@ -5,7 +5,8 @@
   channel = "stable-24.05"; # or "unstable"
   # Use https://search.nixos.org/packages to find packages
   packages = [
-    pkgs.nodejs_22
+    # Alterado para nodejs_20 para garantir compatibilidade com o Vite
+    pkgs.nodejs_20
   ];
   # Sets environment variables in the workspace
   env = {};

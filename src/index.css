@@ -1,83 +1,83 @@
-/*
-  AURORA & PEACH CHIC THEME
-  Correction: Using :root[data-theme='...'] to ensure global theme application,
-  especially for components outside the main body tree, like modals.
-*/
+:root {
+    --primary-color: #7c3aed; /* Roxo vibrante */
+    --primary-color-light: rgba(124, 58, 237, 0.1);
+    --accent-purple: #8b5cf6;
+    --accent-purple-darker: #7c3aed;
+    --accent-pink: #ec4899;
+    --accent-pink-darker: #d946ef;
+    --accent-gradient: linear-gradient(to right, var(--accent-purple), var(--accent-pink));
+    
+    --text-color-primary: #f8fafc; /* Branco suave */
+    --text-color-secondary: #94a3b8; /* Cinza claro para texto secundário */
+    --text-color-contrast: #ffffff;
+    
+    --background-color-primary: #0f172a; /* Fundo principal (mais escuro) */
+    --background-color-secondary: #1e293b; /* Fundo de cartões, modais */
+    --background-color-tertiary: #334155; /* Cor de hover, inputs */
 
-/* --- Theme Variables --- */
-
-/* :root provides fallback to dark theme */
-:root,
-:root[data-theme='dark'] {
-  --background-primary: #10111A;
-  --background-secondary: #1C1D2B;
-  --input-background: #10111A; /* Darker input background for contrast */
-  --card-background: rgba(28, 29, 43, 0.5);
-  --text-primary: #F0F0F5;
-  --text-secondary: #A0A0B0;
-  --border-color: rgba(94, 85, 124, 0.3);
-  --border-hover: rgba(125, 110, 169, 0.6);
-  --accent-primary: #BE93FD;
-  --accent-primary-soft: #a881e3; /* Softer purple for buttons */
-  --accent-secondary: #E6A4B4;
-  --glow-color: rgba(190, 147, 253, 0.15);
-  --positive-color: #00D2A0;
-  --negative-color: #FF6B6B;
-
-  /* Calendar Vars - Dark */
-  --calendar-day-bg: transparent;
-  --calendar-accent-text: var(--accent-secondary);
-  --calendar-today-bg: var(--accent-primary);
+    --border-color: #334155;
+    --modal-overlay-bg: rgba(10, 5, 20, 0.7);
+    --form-element-filter: invert(0.8);
 }
 
-/* PEACH CHIC Light Theme */
-:root[data-theme='light'] {
-  --background-primary: #FFF7F5;
-  --background-secondary: #FFFFFF;
-  --input-background: #FFFFFF;
-  --card-background: rgba(255, 255, 255, 0.75);
-  --text-primary: #4A3F3F;
-  --text-secondary: #8A7F7F;
-  --border-color: #F0E5E3;
-  --border-hover: #E8D8D5;
-  --accent-primary: #A365F8;
-  --accent-primary-soft: #b182f0;
-  --accent-secondary: #E6A4B4;
-  --glow-color: rgba(163, 101, 248, 0.15);
-  --positive-color: #009975;
-  --negative-color: #C0392B;
+[data-theme='light'] {
+    --primary-color: #7c3aed;
+    --primary-color-light: rgba(124, 58, 237, 0.1);
+    --accent-purple: #8b5cf6;
+    --accent-purple-darker: #7c3aed;
+    --accent-pink: #ec4899;
+    --accent-pink-darker: #d946ef;
+    
+    --text-color-primary: #1e293b; /* Azul escuro */
+    --text-color-secondary: #475569; /* Cinza mais escuro */
+    --text-color-contrast: #ffffff;
 
-  /* Calendar Vars - Light */
-  --calendar-day-bg: #FBE0E6;
-  --calendar-accent-text: #D95383;
-  --calendar-today-bg: var(--accent-primary);
+    --background-color-primary: #f8fafc; /* Branco */
+    --background-color-secondary: #ffffff; /* Fundo de cartões, modais */
+    --background-color-tertiary: #f1f5f9; /* Cor de hover, inputs */
+
+    --border-color: #e2e8f0;
+    --modal-overlay-bg: rgba(248, 250, 252, 0.7);
+    --form-element-filter: invert(0.2);
 }
 
-/* --- Global & Body Styles (No changes below this line) --- */
 
 body {
-  margin: 0;
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--background-primary);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease-in-out;
-  overflow-x: hidden;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--background-color-primary);
+    color: var(--text-color-primary);
 }
 
-#root {
-  isolation: isolate;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--text-primary);
-  font-weight: 600;
+/* --- ESTILIZAÇÃO GLOBAL DE FORMULÁRIOS --- */
+select {
+    background-color: var(--background-color-secondary);
+    color: var(--text-color-primary);
+    border: 1px solid var(--border-color);
+    /* Adicione outros estilos como padding, border-radius, etc., se desejar */
 }
 
-/* ... existing dynamic background styles ... */
-body::before, body::after { content: \"\"; position: fixed; z-index: -1; border-radius: 50%; transition: opacity 0.5s ease, background 0.5s ease; filter: blur(150px); }
-body::before { width: 400px; height: 400px; background: var(--accent-primary); opacity: 0.2; top: -10%; left: -20%; }
-body::after { width: 500px; height: 500px; background: var(--accent-secondary); opacity: 0.15; bottom: -15%; right: -15%; }
-:root[data-theme='light'] body::before { background: #FADADD; opacity: 0.5; }
-:root[data-theme='light'] body::after { background: #DFCCFB; opacity: 0.4; bottom: -20%; right: -20%; }
+select option {
+    background: var(--background-color-secondary);
+    color: var(--text-color-primary);
+}
+
+
+/* Layout principal que coloca a sidebar e o conteúdo lado a lado */
+.app-layout {
+    display: flex;
+}
+
+/* Área de conteúdo que cresce para ocupar o espaço restante */
+.main-content {
+    flex-grow: 1;
+}

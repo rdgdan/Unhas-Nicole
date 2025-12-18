@@ -1,99 +1,89 @@
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { auth, googleProvider } from '../firebase';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signInWithPopup 
-} from "firebase/auth";
-import { FcGoogle } from 'react-icons/fc';
-import { FaEnvelope, FaLock } from 'react-icons/fa';
-import './Login.css';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
+import './Login.css'; // Usaremos um CSS dedicado e aprimorado
 
-const Login = () => {
+const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-  const [isRegistering, setIsRegistering] = useState(false);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleAuth = async (authAction) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
     setLoading(true);
-    setError(null);
+
+    if (!email || !password) {
+      setError('Por favor, preencha todos os campos.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      await authAction();
-      navigate('/'); // Redireciona para a raiz (Dashboard) após login/registro
-    } catch (error) {
-      setError(error.message);
+      await login(email, password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Falha ao entrar. Verifique seu e-mail e senha.');
+      console.error("Erro no login:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const action = isRegistering
-      ? () => createUserWithEmailAndPassword(auth, email, password)
-      : () => signInWithEmailAndPassword(auth, email, password);
-    handleAuth(action);
-  };
-
-  const handleGoogleSignIn = () => {
-    handleAuth(() => signInWithPopup(auth, googleProvider));
-  };
-
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2>{isRegistering ? 'Crie sua Conta' : 'Bem-vinda de Volta!'}</h2>
-        <p>Acesse sua agenda e gerencie seus horários.</p>
-        
-        {error && <p className="error-message">{error}</p>}
+    <div className="auth-form-container">
+      <div className="auth-form-header">
+        <h2>Bem-vindo de volta!</h2>
+        <p>Faça login para continuar gerenciando seu negócio.</p>
+      </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="input-group">
-            <input 
-              type="email" 
-              placeholder="Seu melhor e-mail" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required
-            />
-            <FaEnvelope className="input-icon" />
+      <form onSubmit={handleSubmit} className="auth-form" noValidate>
+        {error && (
+          <div className="auth-error-message">
+            <AlertCircle size={18} />
+            <span>{error}</span>
           </div>
-          <div className="input-group">
-            <input 
-              type="password" 
-              placeholder="Sua senha secreta" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required
-            />
-            <FaLock className="input-icon" />
-          </div>
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Aguarde...' : (isRegistering ? 'Registrar Agora' : 'Entrar')}
-          </button>
-        </form>
+        )}
 
-        <div className="divider">ou</div>
-
-        <button onClick={handleGoogleSignIn} className="google-button" disabled={loading}>
-          <FcGoogle size={24} />
-          <span>Entrar com Google</span>
-        </button>
-
-        <div className="toggle-form">
-          {isRegistering ? 'Já tem uma conta?' : 'Não tem uma conta?'}
-          <button onClick={() => setIsRegistering(!isRegistering)} className="toggle-button">
-            {isRegistering ? 'Faça Login' : 'Crie uma'}
-          </button>
+        <div className="input-group">
+          <Mail className="input-icon" size={20} />
+          <input 
+            type="email"
+            placeholder="E-mail"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loading}
+          />
         </div>
+
+        <div className="input-group">
+          <Lock className="input-icon" size={20} />
+          <input 
+            type="password"
+            placeholder="Senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+        
+        <button type="submit" className="auth-button" disabled={loading}>
+          {loading ? 'Entrando...' : 'Entrar'}
+        </button>
+      </form>
+
+      <div className="auth-form-footer">
+        <span>Não tem uma conta? </span>
+        <Link to="/register">Crie uma agora</Link>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default LoginPage;

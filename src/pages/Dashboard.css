@@ -1,140 +1,202 @@
-
-/* --- AURORA & PEACH CHIC DASHBOARD STYLE --- */
-
-.dashboard-container {
-  padding: 1rem 2rem 2rem 2rem;
+/* Estrutura da Página e Cabeçalho */
+.dashboard-page {
+  padding: 20px;
 }
 
-.main-header {
-  margin-bottom: 2.5rem;
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
 }
 
-.main-header h2 {
+.header-content h1 {
   font-size: 2.2rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
+  font-weight: 700;
+  color: var(--text-color-primary);
+  margin: 0;
 }
 
-.main-header p {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
+.header-content p {
+  font-size: 1rem;
+  color: var(--text-color-secondary);
+  margin-top: 5px;
 }
 
-/* --- Estilo para os Títulos das Seções de KPIs --- */
-.kpi-section-header {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
+.header-actions .filter-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  border-radius: 10px;
+  gap: 10px;
+  color: var(--text-color-secondary);
 }
 
-.kpi-section-header h3 {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    font-weight: 500;
+.period-select {
+  background: transparent;
+  border: none;
+  color: var(--text-color-primary);
+  font-size: 1rem;
+  outline: none;
 }
 
-/* --- Grid de KPIs --- */
-.kpi-grid {
+/* REFINAMENTO FINAL: Grid de KPIs para 4 colunas */
+.kpi-grid-four {
   display: grid;
-  gap: 1.5rem;
-}
-
-/* Layout para a seção de Clientes (3 colunas) */
-.kpi-grid.clients {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-/* Layout para a seção de Receita (1 coluna, mais larga) */
-.kpi-grid.revenue {
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
 .kpi-card {
-  background: var(--card-background);
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 15px;
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  flex-direction: column;
 }
 
-.kpi-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-  border-color: var(--border-hover);
-}
-
-.kpi-icon-wrapper {
-  font-size: 2rem;
-  padding: 1rem;
-  border-radius: 50%;
+.kpi-card .card-header {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--background-secondary);
-  color: var(--accent-primary);
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
 }
 
-.kpi-content h4 {
-  margin: 0 0 0.5rem 0;
+.card-title {
   font-size: 1rem;
   font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.kpi-content p {
+  color: var(--text-color-secondary);
   margin: 0;
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: var(--text-primary);
 }
 
-.kpi-change {
+.card-icon {
+  padding: 8px;
+  border-radius: 50%;
+  color: white;
+}
+
+/* Cores dos Ícones para o layout de 4 KPIs */
+.card-icon.revenue { background-color: #2ecc71; }        /* Verde para Receita */
+.card-icon.clients { background-color: #e67e22; }        /* Laranja para Clientes */
+.card-icon.appointments { background-color: #3498db; }  /* Azul para Agendamentos */
+.card-icon.future-revenue { background-color: #9b59b6; } /* Roxo para Receita Futura */
+
+.card-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-color-primary);
+  margin: 0;
+  margin-top: auto; 
+}
+
+/* Grids de Gráficos e Listas */
+.charts-grid, .lists-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.chart-container, .list-container {
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.chart-container h3, .list-container h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: var(--text-color-primary);
+}
+
+/* Listas Top 5 */
+.list-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.list-container li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color-light);
+}
+.list-container li:last-child {
+  border-bottom: none;
+}
+
+.list-item-main {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
-    font-size: 0.9rem;
+    gap: 15px;
+}
+
+.list-rank {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.list-name {
+    font-weight: 500;
+    color: var(--text-color-primary);
+}
+
+.list-value {
     font-weight: 600;
-    margin-top: 0.5rem;
+    color: var(--text-color-secondary);
 }
 
-.kpi-change.positive { color: var(--success-color); }
-.kpi-change.negative { color: var(--danger-color); }
-
-
-/* --- Container dos Gráficos --- */
-.charts-container {
-  margin-top: 2.5rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
+/* Responsividade */
+@media (max-width: 1200px) {
+  .kpi-grid-four, .charts-grid, .lists-grid {
+    grid-template-columns: 1fr 1fr; /* 2x2 para KPIs em telas médias */
+  }
+  .charts-grid, .lists-grid {
+     grid-template-columns: 1fr;
+  }
 }
 
-.chart-card {
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 1.5rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    .kpi-grid-four {
+      grid-template-columns: 1fr; /* KPIs em coluna única em telas pequenas */
+    }
 }
 
-/* Novo estilo para o card de largura total */
-.chart-card.full-width {
-    grid-column: 1 / -1; /* Ocupa todas as colunas da grid */
+/* Loading State */
+.loading-state-full {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 200px);
+    font-size: 1.2rem;
+    color: var(--text-color-secondary);
+    gap: 10px;
 }
 
+.spin-icon {
+    animation: spin 1.5s linear infinite;
+}
 
-.chart-card h3 {
-  margin-top: 0;
-  margin-bottom: 2rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--text-primary);
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }

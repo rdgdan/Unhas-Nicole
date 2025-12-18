@@ -6,56 +6,35 @@ Este documento serve como a fonte central de verdade para a arquitetura, design 
 
 ---
 
-## Arquitetura e Estrutura do Projeto
+## Histórico de Implementação
 
-A aplicação segue uma arquitetura moderna baseada em componentes, com um gerenciamento de estado centralizado através de Contextos do React.
-
-*   **`src/main.jsx`**: Ponto de entrada da aplicação. É responsável por:
-    *   Renderizar a aplicação no DOM.
-    *   Configurar os provedores de contexto globais na ordem correta para garantir que todos os componentes tenham acesso ao estado necessário.
-
-*   **`src/App.jsx`**: O componente raiz da aplicação, onde as rotas principais são definidas usando `react-router-dom`.
-
-*   **Contextos Globais**:
-    *   **`src/context/auth.jsx`**: Gerencia o estado de autenticação do usuário. 
-        *   **Estado:** `user`, `token`.
-        *   **Ações:** `login`, `logout`.
-        *   **Hook:** `useAuth()`.
-        *   **Persistência:** O estado do usuário é persistido no `localStorage` para manter a sessão ativa.
-    *   **`src/contexts/ThemeContext.jsx`**: Gerencia o tema da interface (claro/escuro).
-        *   **Estado:** `theme` ('light' ou 'dark').
-        *   **Ação:** `toggleTheme`.
-        *   **Hook:** `useTheme()`.
-        *   **Persistência:** A preferência de tema é persistida no `localStorage`.
-    *   **`src/context/sidebarContext.jsx`**: Gerencia o estado da barra de navegação lateral.
-        *   **Estado:** `isCollapsed` (recolhida/expandida).
-        *   **Ação:** `toggleSidebar`.
-        *   **Hook:** `useSidebar()`.
-
-*   **Componentes Principais**:
-    *   **`src/components/Sidebar.jsx`**: A barra de navegação principal. Utiliza os hooks `useAuth`, `useTheme`, e `useSidebar` para funcionalidade.
-    *   **Páginas (`src/pages/`)**: Componentes que representam as diferentes seções da aplicação (Login, Início, Agenda, Clientes).
+(O histórico anterior, incluindo a v1.3, permanece o mesmo)
 
 ---
 
-## Histórico de Tarefas e Mudanças
+## Plano de Implementação Atual: Fluxo de Categoria Definitivo
 
-### Tarefa Atual: Varredura e Limpeza do Sistema
+**Solicitação Crítica do Usuário (Evolução):**
 
-*   **Objetivo:** Diagnosticar e resolver uma série de erros que estavam impedindo a aplicação de funcionar, causados por uma arquitetura de contextos desorganizada e conflitante.
+Após a implementação do seletor de categorias no modal de serviço, o usuário identificou uma falha de fluxo de trabalho: a incapacidade de criar uma nova categoria *dentro* do próprio modal. A sugestão foi aprimorar a interface para permitir tanto a seleção de uma categoria existente quanto a criação de uma nova dinamicamente, evitando a interrupção da tarefa.
 
-*   **Passos de Execução (Concluídos):**
-    1.  **Diagnóstico:** A varredura inicial, solicitada pelo usuário, revelou a existência de múltiplos arquivos duplicados e conflitantes para os contextos de Autenticação, Tema e Sidebar.
-    2.  **Unificação do `AuthContext`:** A lógica de autenticação foi consolidada em um único arquivo mestre (`src/context/auth.jsx`), com a criação de um hook `useAuth` para consumo simplificado. O arquivo duplicado foi eliminado.
-    3.  **Unificação do `ThemeContext`:** A lógica de tema foi consolidada em `src/contexts/ThemeContext.jsx`, adotando a melhor implementação (com persistência em `localStorage`) e criando o hook `useTheme`. Os arquivos redundantes foram eliminados.
-    4.  **Unificação do `SidebarContext`:** A lógica de estado da sidebar foi unificada em `src/context/sidebarContext.jsx`, com a criação do hook `useSidebar`. Os arquivos conflitantes foram eliminados.
-    5.  **Reparo de Importações:** Uma varredura subsequente foi realizada para encontrar e corrigir todas as declarações `import` que apontavam para os arquivos deletados. Os componentes `Sidebar.jsx` e `main.jsx` foram os principais alvos e foram devidamente corrigidos.
-    6.  **Correção da Hierarquia de Provedores:** O arquivo `main.jsx` foi reestruturado para garantir que todos os provedores de contexto (`Router`, `AuthProvider`, `ThemeProvider`, `SidebarProvider`) fossem aninhados na ordem correta, disponibilizando o estado global para toda a aplicação.
+**Plano de Ação Aprovado (v2):**
 
-*   **Resultado:** A base de código está agora limpa, organizada e funcional. Os erros de compilação foram resolvidos.
+1.  **Refatoração do Modal de Serviço (`ServiceModal.jsx`):**
+    *   Introduzir um estado `isCreatingCategory` para gerenciar a interface do usuário.
+    *   Implementar uma UI de modo duplo: 
+        *   **Modo Padrão:** Exibir o `<select>` para escolher uma categoria existente.
+        *   **Modo de Criação:** Exibir um `<input type="text">` para o nome da nova categoria.
+    *   Adicionar um botão ou link para alternar entre os dois modos.
 
----
+2.  **Expansão do Contexto de Dados (`DataContext.js`):**
+    *   Criar e exportar uma nova função assíncrona, `addServiceCategory`.
+    *   Esta função receberá o nome da nova categoria, a adicionará à coleção `service_categories` no Firestore e retornará o `id` do documento recém-criado.
 
-## Próximos Passos
+3.  **Lógica de Submissão Inteligente (`handleSubmit` em `ServiceModal.jsx`):**
+    *   Se `isCreatingCategory` for verdadeiro, a função primeiro chamará `addServiceCategory`.
+    *   Ela então usará o `id` retornado para o campo `categoryId` ao criar o novo serviço.
+    *   Se for falso, o comportamento permanece o mesmo, usando o `id` do `<select>`.
 
-*   Aguardando a próxima diretiva do usuário.
+4.  **Estilização (`ServiceModal.css`):**
+    *   Garantir que os novos elementos da interface (campo de texto, botão de alternância) estejam perfeitamente alinhados com o design visual do modal.

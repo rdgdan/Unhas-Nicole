@@ -1,0 +1,47 @@
+/* Estilos para o botão de Novo Agendamento */
+.new-schedule-btn {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 12px rgba(93, 9, 239, 0.2);
+}
+
+.new-schedule-btn:hover:not(:disabled) {
+    background-color: var(--primary-color-dark);
+    box-shadow: 0 6px 16px rgba(93, 9, 239, 0.3);
+}
+
+/* ESTA É A REGRA CRÍTICA PARA O FEEDBACK VISUAL */
+.new-schedule-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.agenda-container .clear-selection-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.agenda-container .clear-selection-btn:hover {
+    background-color: var(--background-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color-hover);
+}

@@ -1,0 +1,68 @@
+/* Layout principal da página de serviços */
+.services-page-container { padding: 2rem; max-width: 1000px; margin: 0 auto; }
+
+.services-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 2rem; }
+.services-header .header-content h1 { font-size: 2.25rem; font-weight: 800; margin: 0; }
+.services-header .header-content p { font-size: 1.1rem; color: var(--text-color-secondary); margin: 0.25rem 0 0; }
+
+.add-service-btn { display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.8rem 1.25rem; background-color: var(--primary-color); color: white; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; white-space: nowrap; }
+.add-service-btn:hover { background-color: #6d28d9; }
+
+/* Card da lista */
+.service-list-card { background-color: var(--background-color-secondary); border-radius: 12px; padding: 2rem; border: 1px solid var(--border-color); }
+
+/* Controles da lista */
+.service-list-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1.5rem; }
+.filter-sort-controls { display: flex; gap: 1rem; }
+.control-select { padding: 0.6rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--background-color-primary); color: var(--text-color-primary); font-size: 0.95rem; cursor: pointer; }
+.control-select:focus { outline-color: var(--primary-color); }
+
+.search-input-wrapper { position: relative; flex-grow: 1; max-width: 400px; }
+.search-input-wrapper .search-icon { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--text-color-secondary); }
+.search-input-wrapper input { width: 100%; padding: 0.6rem 0.75rem 0.6rem 2.5rem; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--background-color-primary); color: var(--text-color-primary); font-size: 0.95rem; }
+
+/* --- Lista de Serviços (com correções) --- */
+.service-list { list-style: none; padding: 0; margin: 0; }
+
+.service-item { display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid var(--border-color); gap: 1rem; transition: background-color 0.2s; }
+.service-item:last-child { border-bottom: none; }
+.service-item:hover { background-color: var(--background-color-tertiary); border-radius: 8px; }
+
+.service-item.unavailable .service-name, .service-item.unavailable .service-details { color: var(--text-color-disabled); text-decoration: line-through; }
+
+.service-info { display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
+.service-name { font-weight: 600; color: var(--text-color-primary); line-height: 1.4; }
+.service-details { font-size: 0.9rem; color: var(--text-color-secondary); }
+
+/* --- ÁREA DE AÇÕES (COM O INTERRUPTOR) --- */
+.service-actions { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+
+.list-switch-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color-secondary);
+    margin-right: -0.5rem; /* Aproxima o texto do interruptor */
+}
+
+.service-item.unavailable .list-switch-label { color: var(--text-color-disabled); }
+
+.switch-list-item { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch-list-item input { opacity: 0; width: 0; height: 0; }
+
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4b5563; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
+
+input:checked + .slider { background-color: var(--primary-color); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+.slider.round { border-radius: 24px; }
+.slider.round:before { border-radius: 50%; }
+
+.icon-btn { background: none; border: none; color: var(--text-color-secondary); cursor: pointer; padding: 0.25rem; transition: color 0.2s; }
+.icon-btn:hover { color: var(--primary-color); }
+
+/* --- Demais estilos --- */
+.empty-state { text-align: center; padding: 3rem 0; color: var(--text-color-secondary); }
+.empty-state p { margin-bottom: 1.5rem; font-size: 1.1rem; }
+.add-service-btn-secondary { display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.2rem; background-color: transparent; color: var(--primary-color); font-size: 1rem; font-weight: 600; border: 2px solid var(--primary-color); border-radius: 8px; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+.add-service-btn-secondary:hover { background-color: var(--primary-color); color: white; }

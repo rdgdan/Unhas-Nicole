@@ -1,92 +1,101 @@
-/* --- Estilos do Componente Sidebar --- */
-
+/* Estrutura principal da Sidebar */
 .sidebar {
-  width: 260px;
-  background-color: var(--background-secondary);
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  /* position: fixed; <-- REMOVIDO */
-  /* height: 100vh; <-- MOVIDO PARA O LAYOUT PRINCIPAL */
-  /* left: 0; <-- REMOVIDO */
-  /* top: 0; <-- REMOVIDO */
-  z-index: 100; /* Pode ser útil para sobrepor outros elementos se necessário, mas não para o layout principal */
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0; /* Impede que a sidebar encolha */
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    background-color: var(--background-color-secondary);
+    border-right: 1px solid var(--border-color);
+    transition: width 0.3s ease;
+
+    /* A MÁGICA PARA O COMPORTAMENTO CORRETO */
+    position: sticky; /* Gruda no topo quando a página rola */
+    top: 0;           /* Define a posição onde vai grudar */
+    align-self: flex-start; /* Garante que a sidebar não se estique desnecessariamente */
+    height: 100vh; /* Garante que a sidebar tenha a altura da tela para o sticky funcionar */
 }
 
+/* Cabeçalho */
 .sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2.5rem;
-  flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    height: 60px;
+    flex-shrink: 0;
 }
 
-/* --- Logo --- */
-.logo-container { display: flex; align-items: center; gap: 0.8rem; overflow: hidden; }
+.logo-wrapper { display: flex; align-items: center; gap: 0.75rem; }
+.logo-icon { color: var(--primary-color); }
+.logo-text { font-size: 1.2rem; font-weight: 600; color: var(--text-color-primary); }
 
-.logo-icon {
-  color: var(--accent-primary);
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+/* Botão de Toggle */
+.toggle-btn {
+    background-color: var(--background-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0; /* Impede que o botão encolha */
 }
 
-.logo-text {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  white-space: nowrap;
-  opacity: 1;
-  transition: opacity 0.2s ease, max-width 0.3s ease;
-}
-
-.toggle-btn { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
-.toggle-btn svg { transition: transform 0.3s ease; }
-.toggle-btn:hover { background-color: var(--background-hover); color: var(--text-primary); }
-
-/* --- Navegação e Rodapé --- */
-.sidebar-nav { flex-grow: 1; display: flex; flex-direction: column; gap: 0.8rem; overflow-y: auto; overflow-x: hidden; min-height: 0; }
-.sidebar-footer { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem; flex-shrink: 0; }
-
-.nav-item { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1rem; border-radius: 10px; color: var(--text-secondary); background-color: transparent; border: none; cursor: pointer; text-decoration: none; font-size: 1rem; font-weight: 500; white-space: nowrap; transition: all 0.2s ease; }
-.nav-item:hover { color: var(--text-primary); background-color: var(--background-hover); }
-.nav-item.active { background-color: var(--accent-primary); color: white; box-shadow: 0 0 15px var(--glow-color); }
-.nav-text { opacity: 1; transition: opacity 0.2s ease; }
-
-/* --- Assinatura Adicionada --- */
-.sidebar-signature {
-  font-size: 0.75rem; /* Tamanho pequeno */
-  color: var(--text-secondary);
-  text-align: center;
-  margin-top: 1.5rem; /* Espaço acima */
-  white-space: nowrap; /* Não quebrar a linha */
-  opacity: 1;
-  transition: opacity 0.2s ease;
+.toggle-btn:hover {
+    background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 
-/* --- Estado Recolhido --- */
-.sidebar.collapsed {
-  width: 90px;
-  padding: 1.5rem 1rem;
+/* Lista de Navegação Principal */
+ul.sidebar-nav {
+    flex-grow: 1; /* Garante que o rodapé seja empurrado para o final da sidebar */
+    min-height: 0; /* Permite a rolagem interna se os itens de menu forem muitos */
+    overflow-y: auto;
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
 }
 
-.sidebar.collapsed .logo-text,
-.sidebar.collapsed .nav-text,
-.sidebar.collapsed .sidebar-signature { /* Oculta a assinatura também */
-  opacity: 0;
-  max-width: 0;
-  pointer-events: none;
+/* Rodapé (agora posicionado no final da sidebar sticky) */
+.sidebar-footer {
+    flex-shrink: 0;
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    border-top: 1px solid var(--border-color);
 }
 
-.sidebar.collapsed .toggle-btn svg {
-  transform: rotate(180deg);
+/* Itens de Navegação (Links) */
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.9rem 1.5rem;
+    color: var(--text-color-secondary);
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+.nav-item:hover { background-color: var(--background-color-tertiary); color: var(--text-color-primary); }
+.nav-item.active { background-color: var(--primary-color-light); color: var(--primary-color); font-weight: 600; }
+.nav-icon { min-width: 20px; margin-right: 1.25rem; }
+
+/* --- Estilos da Sidebar Recolhida --- */
+.sidebar.collapsed { width: 80px; }
+.sidebar.collapsed .nav-text, .sidebar.collapsed .logo-text { display: none; }
+.sidebar.collapsed .nav-item { justify-content: center; padding: 0.9rem 1rem; }
+.sidebar.collapsed .nav-icon { margin-right: 0; }
+.sidebar.collapsed .logo-wrapper { justify-content: center; }
+
+/* A transição suave da rotação acontece aqui */
+.sidebar .toggle-btn {
+    transition: transform 0.3s ease;
 }
 
-.sidebar.collapsed .nav-item {
-  justify-content: center;
+.sidebar.collapsed .toggle-btn { 
+    transform: rotate(180deg); 
 }

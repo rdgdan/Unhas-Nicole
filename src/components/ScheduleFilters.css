@@ -1,0 +1,63 @@
+/* src/components/ScheduleFilters.css */
+
+.schedule-filters {
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border);
+}
+
+.filter-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-item label {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.filter-item label svg {
+  margin-right: 0.5rem;
+  color: var(--color-text-muted);
+}
+
+.filter-item input,
+.filter-item select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  background-color: var(--color-surface-accent);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.filter-item input:focus,
+.filter-item select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+/* Melhora a aparência do seletor de data */
+.filter-item input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(var(--theme-invert-value, 0)); /* Inverte o ícone no tema escuro */
+}
+
+[data-theme="dark"] {
+  --theme-invert-value: 1;
+}

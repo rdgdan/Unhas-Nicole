@@ -1,134 +1,93 @@
-import {
-  collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where, writeBatch
-} from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from '../firebase.js';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp, where, query, setDoc, getDoc } from 'firebase/firestore';
 
-const schedulesCollection = collection(db, "schedules");
-const clientsCollection = collection(db, "clients");
-const serviceCategoriesCollection = collection(db, "service_categories");
+// --- Collections ---
+const schedulesCollection = collection(db, 'schedules');
+const servicesCollection = collection(db, 'services');
+const clientsCollection = collection(db, 'clients');
+const usersCollection = collection(db, 'users');
 
-// --- HIERARQUIA DE SERVIÇOS ---
+// --- Funções de Perfil de Usuário e Permissões ---
 
-let categoriesPromise = null;
-
-const fetchAndPopulateCategories = async () => {
-  const snapshot = await getDocs(serviceCategoriesCollection);
-
-  if (!snapshot.empty) {
-    const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return categories.sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  console.log("Categorias de serviço não encontradas. Populando com dados iniciais...");
-  const batch = writeBatch(db);
-  const initialCategories = [
-    { name: "Acrílico", subclasses: ["Aplicação", "Manutenção"] },
-    { name: "Fibra de Vidro", subclasses: ["Aplicação", "Manutenção", "Remoção"] },
-    { name: "Gel", subclasses: ["Aplicação em Gel na Tip", "Banho de Gel", "Esmaltação em Gel"] },
-    { name: "Serviços Gerais", subclasses: ["Plástica dos Pés", "Spa dos Pés", "Manicure Simples"] },
-  ];
-
-  initialCategories.forEach(category => {
-    const docRef = doc(serviceCategoriesCollection);
-    batch.set(docRef, category);
-  });
-
-  await batch.commit();
-  console.log("Categorias iniciais populadas com sucesso.");
-
-  return initialCategories.sort((a, b) => a.name.localeCompare(b.name));
+// Cria um perfil para o usuário no Firestore (agora com roles opcionais)
+export const createUserProfile = (userId, email, roles = []) => {
+    const userDocRef = doc(db, 'users', userId);
+    return setDoc(userDocRef, { 
+        email: email, 
+        roles: roles, // Usa as roles fornecidas, ou um array vazio por padrão
+        createdAt: Timestamp.now()
+    });
 };
 
-export const getServiceCategories = () => {
-  if (!categoriesPromise) {
-    categoriesPromise = fetchAndPopulateCategories();
-  }
-  return categoriesPromise;
+// Busca o perfil (e as roles) de um usuário específico
+export const getUserProfile = (userId) => {
+    const userDocRef = doc(db, 'users', userId);
+    return getDoc(userDocRef); // Use getDoc para um único documento
+}
+
+// Lista todos os usuários para a página de admin
+export const getAllUsers = async () => {
+    const snapshot = await getDocs(usersCollection);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-// --- CLIENTES ---
+// Permite que um admin atualize as roles de outro usuário
+export const updateUserRoles = (userId, roles) => {
+    const userDocRef = doc(db, 'users', userId);
+    return updateDoc(userDocRef, { roles: roles });
+};
 
-const findOrCreateClient = async (name, phone) => {
-  if (!phone) throw new Error("O número de telefone é obrigatório para identificar ou criar um cliente.");
+// --- Funções de Agendamento (Schedules) --- //
+export const getSchedules = async (userId) => {
+    const q = query(schedulesCollection, where("userId", "==", userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), start: doc.data().start?.toDate(), end: doc.data().end?.toDate() }));
+};
 
-  const q = query(clientsCollection, where("phone", "==", phone));
-  const snapshot = await getDocs(q);
+export const addSchedule = (schedule) => addDoc(schedulesCollection, { ...schedule, start: Timestamp.fromDate(new Date(schedule.start)), end: Timestamp.fromDate(new Date(schedule.end)) });
+export const updateSchedule = (id, schedule) => updateDoc(doc(db, 'schedules', id), { ...schedule, ...(schedule.start && { start: Timestamp.fromDate(new Date(schedule.start)) }), ...(schedule.end && { end: Timestamp.fromDate(new Date(schedule.end)) }) });
+export const deleteSchedule = (id) => deleteDoc(doc(db, 'schedules', id));
 
-  if (!snapshot.empty) {
-    return snapshot.docs[0].id;
-  } else {
-    const clientData = {
-      name,
-      phone,
-      since: new Date().toISOString().split('T')[0],
+// --- Funções de Serviços (Services) --- //
+export const getServices = async (userId) => {
+    const q = query(servicesCollection, where("userId", "==", userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+export const addService = (service) => addDoc(servicesCollection, { ...service, createdAt: Timestamp.now() });
+export const updateService = (id, serviceData) => updateDoc(doc(db, 'services', id), serviceData);
+export const deleteService = (id) => deleteDoc(doc(db, 'services', id));
+
+// --- Funções de Clientes (Clients) --- //
+export const getClients = async (userId) => {
+    const q = query(clientsCollection, where("userId", "==", userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+export const addClient = (client) => addDoc(clientsCollection, { ...client, createdAt: Timestamp.now() });
+export const updateClient = (id, clientData) => updateDoc(doc(db, 'clients', id), clientData);
+export const deleteClient = (id) => deleteDoc(doc(db, 'clients', id));
+
+// --- FUNÇÃO DE MIGRAÇÃO DE DADOS (CORRIGIDA) ---
+export const migrateDataToUser = async (userId) => {
+    if (!userId) throw new Error("UserID é necessário para a migração.");
+
+    const migrateCollection = async (coll, type) => {
+        const q = query(coll, where("userId", "==", null)); // Migra apenas docs sem userId
+        const snapshot = await getDocs(q);
+        const promises = [];
+        snapshot.forEach(document => {
+            const docRef = doc(db, type, document.id);
+            promises.push(updateDoc(docRef, { userId: userId }));
+        });
+        await Promise.all(promises);
+        return snapshot.size;
     };
-    const docRef = await addDoc(clientsCollection, clientData);
-    return docRef.id;
-  }
-};
 
-/**
- * Adiciona um novo cliente, utilizando a lógica que previne duplicatas pelo telefone.
- * Esta função é exportada para ser usada pela página de Clientes.
- * @param {object} clientData - Objeto contendo { name, phone }.
- * @returns {Promise<string>} O ID do cliente (novo ou existente).
- */
-export const addClient = async (clientData) => {
-    const { name, phone } = clientData;
-    return await findOrCreateClient(name, phone);
-};
+    const migratedClients = await migrateCollection(clientsCollection, 'clients');
+    const migratedServices = await migrateCollection(servicesCollection, 'services');
 
-export const getClients = async () => {
-  const snapshot = await getDocs(clientsCollection);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-};
-
-export const updateClient = async (clientId, updatedData) => {
-  await updateDoc(doc(db, "clients", clientId), updatedData);
-};
-
-export const deleteClient = async (clientId) => {
-  await deleteDoc(doc(db, "clients", clientId));
-};
-
-// --- AGENDAMENTOS ---
-
-export const getSchedules = async () => {
-  const snapshot = await getDocs(schedulesCollection);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-};
-
-export const addSchedule = async (scheduleData) => {
-  const { clientName, clientPhone, price, ...restOfSchedule } = scheduleData;
-  const clientId = await findOrCreateClient(clientName, clientPhone);
-
-  const finalScheduleData = {
-    ...restOfSchedule,
-    clientName,
-    clientPhone,
-    price: parseFloat(price) || 0,
-    clientId: clientId,
-  };
-
-  const docRef = await addDoc(schedulesCollection, finalScheduleData);
-  return docRef.id;
-};
-
-export const deleteSchedule = async (scheduleId) => {
-  await deleteDoc(doc(db, "schedules", scheduleId));
-};
-
-export const updateSchedule = async (scheduleId, updatedData) => {
-  const { clientName, clientPhone, price, ...restOfSchedule } = updatedData;
-  const clientId = await findOrCreateClient(clientName, clientPhone);
-
-  const finalScheduleData = {
-      ...restOfSchedule,
-      clientName,
-      clientPhone,
-      price: parseFloat(price) || 0,
-      clientId: clientId,
-  };
-
-  await updateDoc(doc(db, "schedules", scheduleId), finalScheduleData);
+    return { migratedClients, migratedServices };
 };

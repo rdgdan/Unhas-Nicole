@@ -1,0 +1,154 @@
+/* src/components/ScheduleList.css */
+
+.schedule-list-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-list-header,
+.schedule-item {
+  display: grid;
+  /* Cliente | Serviço | Data | Início | Fim | Pagamento | Ações */
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1.2fr 100px; 
+  gap: 1.5rem;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+/* --- Cabeçalho --- */
+.schedule-list-header {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.schedule-list-header strong {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem; /* 12px */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- Corpo e Itens --- */
+.schedule-list-body {
+  max-height: 450px; /* Um pouco mais de altura */
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.schedule-item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.schedule-item:last-child {
+  border-bottom: none;
+}
+
+.schedule-item:hover {
+  background-color: var(--color-surface-accent);
+  border-radius: var(--border-radius);
+}
+
+.schedule-item span {
+  color: var(--color-text-primary);
+  font-size: 0.9rem; /* 14.4px */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.schedule-item .client-name {
+  color: var(--color-primary-light);
+  font-weight: 500;
+}
+
+/* --- Status de Pagamento --- */
+.col-payment {
+  display: flex;
+  align-items: center;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px; /* Pill shape */
+  font-size: 0.8rem; /* 12.8px */
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-chip::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.status-paid {
+  color: var(--color-success-dark);
+  background-color: var(--color-success-light);
+}
+
+.status-paid::before {
+  background-color: var(--color-success);
+}
+
+.status-pending {
+  color: var(--color-warning-dark);
+  background-color: var(--color-warning-light);
+}
+
+.status-pending::before {
+  background-color: var(--color-warning);
+}
+
+.payment-date {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-left: 0.5rem; /* Espaço entre chip e data */
+}
+
+
+/* --- Ações --- */
+.schedule-item-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.action-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  padding: 0.4rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-icon-btn:hover {
+  background-color: var(--color-surface-accent);
+  color: var(--color-primary);
+}
+
+
+/* --- Mensagem de "Sem Resultados" --- */
+.no-results-message {
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: 3rem 0;
+}
+
+/* --- Scrollbar --- */
+.schedule-list-body::-webkit-scrollbar { width: 6px; }
+.schedule-list-body::-webkit-scrollbar-track { background: transparent; }
+.schedule-list-body::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 6px;
+}

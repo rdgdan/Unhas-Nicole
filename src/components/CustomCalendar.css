@@ -1,112 +1,223 @@
-/* --- Estilos para o Calendário Aurora - A Versão Final e Correta --- */
+/* === Cosmic Glow Agenda & Calendar Style === */
 
-.aurora-calendar {
-  background-color: var(--background-secondary);
-  border-radius: 16px;
-  padding: 1.5rem;
-  border: 1px solid var(--border-color);
+/* --- Cabeçalho da Página: Título "Agenda" e Botão --- */
+.agenda-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
 }
 
-.calendar-header {
+.agenda-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.new-schedule-btn {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.new-schedule-btn:hover { 
+  background: var(--border-color); 
+  color: var(--text-primary);
+}
+
+/* --- Seção de Agendamentos (Abaixo do Calendário) --- */
+.schedules-section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
 }
 
-.calendar-title {
-  font-size: 1.75rem;
+.schedules-section-header h2 {
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.clear-selection-btn {
+  background: transparent;
+  color: var(--accent-pink);
+  border: 1px solid var(--accent-pink);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.clear-selection-btn:hover {
+  background: var(--accent-pink);
+  color: var(--card-bg);
+}
+
+/* --- Card do Calendário --- */
+.calendar-card {
+  position: relative;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* --- Cabeçalho do Calendário: Setas e Título do Mês --- */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+
+.calendar-header h2 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--accent-purple);
+  margin: 0;
   text-transform: capitalize;
 }
 
-.nav-buttons button {
+.calendar-header .nav-btn {
   background: transparent;
-  border: 1px solid transparent;
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  border-radius: 8px;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
 }
-.nav-buttons button:hover { background-color: var(--background-hover); color: var(--text-primary); border-color: var(--border-color); }
-.nav-buttons button:first-child { margin-right: 0.5rem; }
 
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; }
-
-.weekday-header {
-  text-align: center;
-  font-weight: 600;
-  color: var(--text-secondary);
-  padding-bottom: 1rem;
-  font-size: 0.9rem;
+.calendar-header .nav-btn:hover {
+  background: var(--accent-purple-dark);
+  color: var(--accent-purple);
+  border-color: var(--accent-purple);
 }
 
-.day-cell {
-  height: 80px;
+/* --- Grid do Calendário --- */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.8rem;
+}
+
+.calendar-day-name {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  padding-bottom: 0.5rem;
+}
+
+/* --- Célula do Dia do Calendário --- */
+.calendar-day {
+  position: relative;
+  height: 110px;
+  background: var(--card-bg);
+  border-radius: 12px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  background-color: transparent;
-  border: none;
-  transition: all 0.2s ease;
+  padding: 0.5rem;
+  overflow: hidden;
 }
 
+.calendar-day:not(.empty):hover {
+  background: var(--accent-purple-dark);
+  border-color: var(--accent-purple);
+}
+
+.calendar-day.empty { 
+  background: transparent; 
+  cursor: default; 
+  border: none; 
+}
+
+/* DESTAQUE: Fim de semana e feriados */
+.calendar-day.weekend {
+  background-color: rgba(255, 235, 59, 0.05);
+}
+
+.calendar-day.holiday {
+  background-color: rgba(239, 83, 80, 0.05);
+}
+
+.calendar-day.weekend .day-number, .calendar-day.holiday .day-number {
+  opacity: 0.8;
+}
+
+.calendar-day.holiday .day-number {
+  color: var(--accent-red);
+  font-weight: 700;
+}
+
+/* --- Estilos para o Número do Dia --- */
 .day-number {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--text-secondary);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  position: relative;
-  z-index: 2;
+  text-align: right;
+  margin-bottom: 0.3rem;
 }
 
-.day-cell:hover .day-number {
-  background-color: var(--background-hover);
-  color: var(--text-primary);
-  transform: scale(1.1);
-  box-shadow: 0 0 20px 5px var(--glow-color);
+/* --- Agendamentos dentro do Calendário --- */
+.schedules-on-day {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+}
+.schedules-on-day::-webkit-scrollbar { display: none; } /* Chrome, Safari */
+
+.calendar-schedule-item {
+  background-color: var(--background-color);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent-pink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: 1px solid var(--border-color);
 }
 
-/* --- Indicador de Evento: O Ponto Sutil --- */
-.has-events .day-number::after {
-  content: '';
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background-color: var(--accent-primary);
-  box-shadow: 0 0 5px var(--glow-color);
+.calendar-schedule-item:hover {
+  background-color: var(--accent-purple-dark);
+  border-color: var(--accent-purple);
 }
 
-
-.not-current-month .day-number { opacity: 0.3; pointer-events: none; }
-
-.weekend-day .day-number,
-.holiday-day .day-number {
-  color: var(--accent-secondary);
-}
-
-.today .day-number {
-  color: #fff;
-  background-color: var(--accent-primary);
-  box-shadow: 0 0 10px var(--glow-color);
-}
-
-/* Se um dia com evento for também hoje, não queremos o ponto, pois o fundo já indica. */
-.today.has-events .day-number::after {
-    display: none;
+.calendar-schedule-more {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  padding-top: 2px;
 }
