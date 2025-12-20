@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../firebase';
+import { auth, googleProvider } from '../firebase'; // Importa o googleProvider
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    signInWithPopup, // Importa a função para login com popup
     signOut,
     onAuthStateChanged
 } from 'firebase/auth';
@@ -23,48 +24,44 @@ export const AuthProvider = ({ children }) => {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const ADMIN_EMAIL = "teste@gmail.com";
+    const ADMIN_EMAIL = "teste@gmail.com"; // Considere mover para .env
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setLoading(true); // Começa o carregamento ao detectar mudança de usuário
             if (user) {
-                // Usuário logado: buscar sempre o perfil mais recente.
                 const userDoc = await getUserProfileFromFirestore(user.uid);
-                const isDesignatedAdmin = user.email === ADMIN_EMAIL;
-
-                let profileData = null;
+                let profileData;
 
                 if (userDoc.exists()) {
-                    // Perfil existe no Firestore.
+                    // Perfil já existe, apenas carrega.
                     profileData = { ...userDoc.data(), id: user.uid };
-
-                    // LÓGICA DE CORREÇÃO E GARANTIA DE ADMIN
-                    // Se for o admin e a role não estiver no perfil, adiciona.
-                    if (isDesignatedAdmin && !profileData.roles?.includes('admin')) {
+                    // Garante que o admin designado tenha sempre a role de admin.
+                    if (user.email === ADMIN_EMAIL && !profileData.roles?.includes('admin')) {
                         await updateUserRoles(user.uid, ['admin']);
-                        // Atualiza o objeto local para refletir a mudança imediatamente
-                        profileData.roles = ['admin'];
+                        profileData.roles = ['admin']; // Atualiza o perfil localmente
                     }
                 } else {
-                    // Primeiro login/registro: Perfil não existe, então o criamos.
-                    const initialRoles = isDesignatedAdmin ? ['admin'] : [];
+                    // NOVO USUÁRIO: Perfil não existe, então o criamos.
+                    // Funciona para E-mail/Senha e para Google Sign-In.
+                    const initialRoles = user.email === ADMIN_EMAIL ? ['admin', 'user'] : ['user'];
                     const newProfile = {
                         email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0], // Nome do Google ou parte do e-mail
+                        photoURL: user.photoURL || '', // Foto do Google ou vazio
                         roles: initialRoles,
-                        createdAt: new Date(),
                     };
-                    await createUserProfile(user.uid, newProfile.email, newProfile.roles);
+                    await createUserProfile(user.uid, newProfile);
                     profileData = { ...newProfile, id: user.uid };
                 }
                 setUserProfile(profileData);
                 setCurrentUser(user);
             } else {
-                // Usuário deslogado: limpa os perfis.
+                // Usuário deslogado.
                 setUserProfile(null);
                 setCurrentUser(null);
             }
-            // Finaliza o loading APENAS depois de todas as operações assíncronas.
-            setLoading(false);
+            setLoading(false); // Finaliza o carregamento
         });
 
         return unsubscribe;
@@ -76,6 +73,11 @@ export const AuthProvider = ({ children }) => {
 
     const login = (email, password) => {
         return signInWithEmailAndPassword(auth, email, password);
+    };
+
+    // NOVA FUNÇÃO: Login com Google
+    const signInWithGoogle = () => {
+        return signInWithPopup(auth, googleProvider);
     };
 
     const logout = () => {
@@ -93,14 +95,10 @@ export const AuthProvider = ({ children }) => {
         signup,
         login,
         logout,
+        signInWithGoogle, // Expõe a nova função
         hasRole,
     };
 
-    // ####### A CORREÇÃO FUNDAMENTAL #######
-    // Removemos a lógica `!loading && children`.
-    // O provedor agora renderiza os filhos IMEDIATAMENTE.
-    // Os componentes filhos (`AdminRoute`, `PrivateRoute`) usarão o estado `loading`
-    // para decidir se mostram uma tela de carregamento ou o conteúdo.
     return (
         <AuthContext.Provider value={value}>
             {children}
