@@ -9,13 +9,13 @@ const usersCollection = collection(db, 'users');
 
 // --- Funções de Perfil de Usuário e Permissões ---
 
-// Cria um perfil para o usuário no Firestore (agora com roles opcionais)
-export const createUserProfile = (userId, email, roles = []) => {
+// Cria um perfil para o usuário no Firestore.
+// ACEITA UM OBJETO DE DADOS, tornando-a mais flexível.
+export const createUserProfile = (userId, profileData) => {
     const userDocRef = doc(db, 'users', userId);
-    return setDoc(userDocRef, { 
-        email: email, 
-        roles: roles, // Usa as roles fornecidas, ou um array vazio por padrão
-        createdAt: Timestamp.now()
+    return setDoc(userDocRef, {
+        ...profileData, // Espalha os dados recebidos (ex: email, displayName, photoURL)
+        createdAt: Timestamp.now() // Adiciona o timestamp da criação
     });
 };
 
