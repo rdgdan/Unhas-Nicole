@@ -1,7 +1,8 @@
+
 import { db, auth } from '../firebase.js';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp, where, query, setDoc, getDoc } from 'firebase/firestore';
 
-// --- Collections ---
+// --- Coleções ---
 const schedulesCollection = collection(db, 'schedules');
 const servicesCollection = collection(db, 'services');
 const clientsCollection = collection(db, 'clients');
@@ -10,21 +11,19 @@ const usersCollection = collection(db, 'users');
 // --- Helper para obter o token de autenticação ---
 const getIdToken = async () => {
     if (!auth.currentUser) {
-        throw new Error("Nenhum usuário autenticado encontrado. Por favor, faça login novamente.");
+        throw new Error("Nenhum usuário autenticado. Faça login novamente.");
     }
-    // Força a atualização do token para garantir que não está expirado
     return await auth.currentUser.getIdToken(true);
 }
 
 // --- Funções de Perfil de Usuário e Permissões (Admin) ---
 
-// Lista todos os usuários para a página de admin
 export const getAllUsers = async () => {
     const snapshot = await getDocs(usersCollection);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-// CHAMA O BACKEND SEGURO para deletar uma conta de usuário (Auth e Firestore)
+// CORREÇÃO: Função robusta para deletar usuário com catch limpo
 export const deleteUserAccount = async (uid) => {
     const token = await getIdToken();
     const response = await fetch('/api/deleteUser', {
@@ -36,14 +35,23 @@ export const deleteUserAccount = async (uid) => {
         body: JSON.stringify({ uid })
     });
 
-    const result = await response.json();
     if (!response.ok) {
-        throw new Error(result.error || 'Falha ao deletar o usuário.');
+        try {
+            const errorResult = await response.json();
+            throw new Error(errorResult.error || `Erro do servidor: ${response.statusText}`);
+        } catch {
+            throw new Error(`Falha ao deletar usuário. Status: ${response.status} ${response.statusText}`);
+        }
     }
-    return result;
+    
+    try {
+        return await response.json();
+    } catch {
+        return { success: true }; // Retorna sucesso se não houver corpo
+    }
 };
 
-// CHAMA O BACKEND SEGURO para atualizar os detalhes de um usuário (Auth e Firestore)
+// CORREÇÃO: Função robusta para atualizar usuário com catch limpo
 export const updateUserDetails = async (uid, dataToUpdate) => {
     const token = await getIdToken();
     const response = await fetch('/api/updateUser', {
@@ -55,28 +63,32 @@ export const updateUserDetails = async (uid, dataToUpdate) => {
         body: JSON.stringify({ uid, ...dataToUpdate })
     });
 
-    const result = await response.json();
     if (!response.ok) {
-        throw new Error(result.error || 'Falha ao atualizar o usuário.');
+        try {
+            const errorResult = await response.json();
+            throw new Error(errorResult.error || `Erro do servidor: ${response.statusText}`);
+        } catch {
+            throw new Error(`Falha ao atualizar usuário. Status: ${response.status} ${response.statusText}`);
+        }
     }
-    return result;
+
+    try {
+        return await response.json();
+    } catch {
+        return { success: true }; // Retorna sucesso se não houver corpo
+    }
 };
+
 
 // --- Funções de Perfil de Usuário (Padrão) ---
 
 export const createUserProfile = (userId, profileData) => {
-    const userDocRef = doc(db, 'users', userId);
-    return setDoc(userDocRef, {
-        ...profileData,
-        createdAt: Timestamp.now()
-    });
+    return setDoc(doc(db, 'users', userId), { ...profileData, createdAt: Timestamp.now() });
 };
 
 export const getUserProfile = (userId) => {
-    const userDocRef = doc(db, 'users', userId);
-    return getDoc(userDocRef);
+    return getDoc(doc(db, 'users', userId));
 }
-
 
 // --- Funções de Agendamento (Schedules) --- //
 export const getSchedules = async (userId) => {
@@ -111,12 +123,12 @@ export const addClient = (client) => addDoc(clientsCollection, { ...client, crea
 export const updateClient = (id, clientData) => updateDoc(doc(db, 'clients', id), clientData);
 export const deleteClient = (id) => deleteDoc(doc(db, 'clients', id));
 
-// --- FUNÇÃO DE MIGRAÇÃO DE DADOS (CORRIGIDA) ---
+// --- FUNÇÃO DE MIGRAÇÃO DE DADOS ---
 export const migrateDataToUser = async (userId) => {
     if (!userId) throw new Error("UserID é necessário para a migração.");
 
     const migrateCollection = async (coll, type) => {
-        const q = query(coll, where("userId", "==", null)); // Migra apenas docs sem userId
+        const q = query(coll, where("userId", "==", null));
         const snapshot = await getDocs(q);
         const promises = [];
         snapshot.forEach(document => {
