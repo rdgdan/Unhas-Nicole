@@ -53,7 +53,7 @@ export const updateUserDetails = async (uid, dataToUpdate) => {
             // Tenta interpretar o corpo como JSON para uma mensagem de erro mais específica
             const errorJson = JSON.parse(errorBody);
             errorMessage = errorJson.error || errorJson.details || errorBody;
-        } catch (e) {
+        } catch {
             // Se não for JSON, usa o corpo do erro como está (pode ser um log de erro do servidor)
             errorMessage = errorBody || `Status Text: ${response.statusText}`;
         }
