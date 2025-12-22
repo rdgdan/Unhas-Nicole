@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth, googleProvider } from '../firebase'; // Importa o googleProvider
 import {
@@ -10,7 +11,7 @@ import {
 import {
     createUserProfile,
     getUserProfile as getUserProfileFromFirestore,
-    updateUserRoles
+    updateUserDetails // Corrigido: Trocado updateUserRoles por updateUserDetails
 } from '../services/firestoreService';
 
 const AuthContext = createContext();
@@ -24,7 +25,9 @@ export const AuthProvider = ({ children }) => {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const ADMIN_EMAIL = "teste@gmail.com"; // Considere mover para .env
+    // Este e-mail é o seu super administrador.
+    // Considere movê-lo para as variáveis de ambiente do seu projeto (.env) para mais segurança.
+    const ADMIN_EMAIL = "teste@gmail.com";
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -38,18 +41,20 @@ export const AuthProvider = ({ children }) => {
                     profileData = { ...userDoc.data(), id: user.uid };
                     // Garante que o admin designado tenha sempre a role de admin.
                     if (user.email === ADMIN_EMAIL && !profileData.roles?.includes('admin')) {
-                        await updateUserRoles(user.uid, ['admin']);
+                        // Corrigido: Usa a nova função updateUserDetails
+                        await updateUserDetails(user.uid, { roles: ['admin'] });
                         profileData.roles = ['admin']; // Atualiza o perfil localmente
                     }
                 } else {
                     // NOVO USUÁRIO: Perfil não existe, então o criamos.
                     // Funciona para E-mail/Senha e para Google Sign-In.
-                    const initialRoles = user.email === ADMIN_EMAIL ? ['admin', 'user'] : ['user'];
+                    const initialRoles = user.email === ADMIN_EMAIL ? ['admin'] : []; // Simplificado: admin é admin, resto começa sem role
                     const newProfile = {
                         email: user.email,
                         displayName: user.displayName || user.email.split('@')[0], // Nome do Google ou parte do e-mail
                         photoURL: user.photoURL || '', // Foto do Google ou vazio
                         roles: initialRoles,
+                        createdAt: new Date() // Adiciona data de criação
                     };
                     await createUserProfile(user.uid, newProfile);
                     profileData = { ...newProfile, id: user.uid };
