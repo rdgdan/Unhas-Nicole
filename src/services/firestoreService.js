@@ -1,5 +1,5 @@
 import { getAuth, onAuthStateChanged, getIdToken as getFirebaseAuthIdToken } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 // --- Funções de Autenticação e Token ---
 
