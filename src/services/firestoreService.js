@@ -89,7 +89,7 @@ export const deleteUser = async (uid) => {
 export const getUserProfile = async (uid) => {
     const userDocRef = doc(db, "users", uid);
     const userDoc = await getDoc(userDocRef);
-    if (userDoc.exists()) {
+    if (userDoc.exists) { // Correção aplicada aqui
         return { uid: userDoc.id, ...userDoc.data() };
     } else {
         return null; // Ou lançar um erro, dependendo da sua lógica
