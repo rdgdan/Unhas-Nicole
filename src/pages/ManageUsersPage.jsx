@@ -1,16 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext'; // 1. Importar o hook de autenticação
 
 const ManageUsersPage = () => {
+    const { currentUser } = useAuth(); // 2. Obter o usuário atual
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // 3. Modificar a função fetchUsers para enviar o token
     const fetchUsers = async () => {
+        if (!currentUser) {
+            setError("Autenticação necessária para acessar esta página.");
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await fetch('/api/getUsers');
+            const idToken = await currentUser.getIdToken(true);
+            const response = await fetch('/api/getUsers', {
+                headers: {
+                    'Authorization': `Bearer ${idToken}`,
+                },
+            });
+
             if (!response.ok) {
-                throw new Error('Failed to fetch users.');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Falha ao buscar usuários.');
             }
+
             const data = await response.json();
             setUsers(data);
         } catch (err) {
@@ -21,23 +38,30 @@ const ManageUsersPage = () => {
     };
 
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        // Só executa se o usuário estiver carregado
+        if (currentUser) {
+            fetchUsers();
+        }
+    }, [currentUser]); // Depende do currentUser para re-executar se ele mudar
 
+    // 4. Modificar as outras funções para também enviarem o token
     const handleToggleAdmin = async (uid, isAdmin) => {
         try {
+            const idToken = await currentUser.getIdToken(true);
             const response = await fetch('/api/updateUser', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`,
+                },
                 body: JSON.stringify({ uid, isAdmin: !isAdmin }),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to update user.');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Falha ao atualizar usuário.');
             }
-
-            // Refresh a lista de usuários
-            fetchUsers();
+            fetchUsers(); // Recarrega a lista
         } catch (err) {
             setError(err.message);
         }
@@ -46,18 +70,21 @@ const ManageUsersPage = () => {
     const handleDeleteUser = async (uid) => {
         if (window.confirm('Tem certeza que deseja deletar este usuário? Esta ação é irreversível.')) {
             try {
+                const idToken = await currentUser.getIdToken(true);
                 const response = await fetch('/api/deleteUser', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`,
+                    },
                     body: JSON.stringify({ uid }),
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to delete user.');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Falha ao deletar usuário.');
                 }
-
-                // Refresh a lista de usuários
-                fetchUsers();
+                fetchUsers(); // Recarrega a lista
             } catch (err) {
                 setError(err.message);
             }
@@ -65,11 +92,11 @@ const ManageUsersPage = () => {
     };
 
     if (loading) {
-        return <div>Carregando usuários...</div>;
+        return <div className="container mx-auto p-4">Carregando usuários...</div>;
     }
 
     if (error) {
-        return <div>Erro: {error}</div>;
+        return <div className="container mx-auto p-4 text-red-500">Erro: {error}</div>;
     }
 
     return (
@@ -90,13 +117,13 @@ const ManageUsersPage = () => {
                             <tr key={user.uid}>
                                 <td className="py-2 px-4 border-b">{user.displayName || 'N/A'}</td>
                                 <td className="py-2 px-4 border-b">{user.email}</td>
-                                <td className="py-2 px-4 border-b">{user.isAdmin ? 'Sim' : 'Não'}</td>
+                                <td className="py-2 px-4 border-b">{user.customAttributes?.admin ? 'Sim' : 'Não'}</td>
                                 <td className="py-2 px-4 border-b">
                                     <button
-                                        onClick={() => handleToggleAdmin(user.uid, user.isAdmin)}
-                                        className={`mr-2 px-4 py-2 rounded ${user.isAdmin ? 'bg-yellow-500' : 'bg-green-500'} text-white`}
+                                        onClick={() => handleToggleAdmin(user.uid, user.customAttributes?.admin)}
+                                        className={`mr-2 px-4 py-2 rounded ${user.customAttributes?.admin ? 'bg-yellow-500' : 'bg-green-500'} text-white`}
                                     >
-                                        {user.isAdmin ? 'Rebaixar' : 'Promover'}
+                                        {user.customAttributes?.admin ? 'Rebaixar' : 'Promover'}
                                     </button>
                                     <button
                                         onClick={() => handleDeleteUser(user.uid)}
