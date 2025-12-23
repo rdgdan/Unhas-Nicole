@@ -1,27 +1,23 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext'; // Adjusted for new location
-import LoadingScreen from '../common/LoadingScreen'; // Adjusted for new location
+import { useAuth } from '../../contexts/AuthContext';
+import LoadingScreen from '../common/LoadingScreen';
 
-// Este componente \"porteiro\" verifica se o usuário está logado E se ele é um admin.
 const AdminRoute = ({ children }) => {
-  const { currentUser, userProfile, loading } = useAuth();
+  const { currentUser, isAdmin, loading } = useAuth(); // Usando o novo estado isAdmin
 
-  // Se ainda estiver carregando os dados do usuário, exibe a tela de carregamento.
-  if (loading || !userProfile) {
+  // Se ainda estiver carregando, exibe a tela de carregamento.
+  if (loading) {
     return <LoadingScreen />;
   }
-
-  // Verifica se o perfil do usuário inclui a role 'admin'.
-  const isAdmin = userProfile.roles?.includes('admin');
 
   // Se o usuário estiver logado E for um admin, permite o acesso.
   if (currentUser && isAdmin) {
     return children;
   }
 
-  // Caso contrário, redireciona para a página de dashboard (uma melhoria de UX).
-  // O usuário já está logado, então não faz sentido mandá-lo para /login.
+  // Se não for admin, redireciona para o dashboard.
+  // Usamos replace para que o usuário não possa usar o botão "voltar" do navegador para acessar a rota admin.
   return <Navigate to="/dashboard" replace />;
 };
 

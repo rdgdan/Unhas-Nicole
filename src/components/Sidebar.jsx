@@ -2,17 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { Home, Calendar, Users, Briefcase, Moon, Sun, LogOut, ChevronLeft, Instagram, Feather, Shield } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext'; // Corrigido
 import { useTheme } from '../contexts/ThemeContext';
 import './Sidebar.css';
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
-    // Acessa o contexto de autenticação e de tema
-    const { logout, userProfile } = useAuth(); // Pega o perfil completo do usuário
+    // Acessa os contextos
+    const { logout, isAdmin } = useAuth(); // Pega o novo estado isAdmin!
     const { theme, toggleTheme } = useTheme();
-
-    // Verificação explícita da permissão de administrador
-    const isAdmin = userProfile?.roles?.includes('admin') || false;
 
     const handleLogout = async () => {
         try {
@@ -60,8 +57,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                     </NavLink>
                 </li>
                 
-                {/* A MÁGICA ACONTECE AQUI */}
-                {/* O botão Admin só é renderizado se o usuário tiver a permissão */}
+                {/* A MÁGICA ACONTECE AQUI: Usa o novo estado isAdmin do AuthContext */}
                 {isAdmin && (
                     <li>
                         <NavLink to="/admin" className="nav-item" title="Administração">
